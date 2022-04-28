@@ -42,7 +42,7 @@ function All() {
 
 
 function defineAllBody(noteB64) {
-  if (noteB64 === null || noteB64 == '') {
+  if (noteB64 === null || noteB64 === '') {
     return (
       <div></div>
     )
@@ -64,7 +64,7 @@ function defineAllBody(noteB64) {
   if (category === 't' || category === 'a' || category === 'r') {
 
     const parts = noteTxt.split(';');
-    if (parts.length != 5) {
+    if (parts.length !== 5) {
       console.log(noteTxt);
       return <Text>Malformed transaction.</Text>
     }
