@@ -1,6 +1,8 @@
 # Edaga
 
-A companion MVP to [this ARC](https://github.com/algorandfoundation/ARCs/issues/86).
+A rough companion MVP to [this ARC](https://github.com/algorandfoundation/ARCs/issues/86).
+
+Note that this MVP directly queries a [free indexer hosted by AlgoNode](https://algonode.io/). In the proposal I suggest an additional layer, an aggregation layer that would handle filtering, recommendation, caching, etc; that would in turn feed the UI-layer.
 
 
 ## Etymology
