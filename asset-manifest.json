@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/HashMapsData2Value/edaga/static/js/main.296b247f.js",
-    "index.html": "/HashMapsData2Value/edaga/index.html",
-    "main.296b247f.js.map": "/HashMapsData2Value/edaga/static/js/main.296b247f.js.map"
+    "main.js": "/edaga/static/js/main.92407a44.js",
+    "index.html": "/edaga/index.html",
+    "main.92407a44.js.map": "/edaga/static/js/main.92407a44.js.map"
   },
   "entrypoints": [
-    "static/js/main.296b247f.js"
+    "static/js/main.92407a44.js"
   ]
 }
