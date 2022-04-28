@@ -6,7 +6,7 @@ import getShortenedBase32 from './utils';
 
 
 function All() {
-  
+
   const [transactions, setTransactions] = useState([])
   useEffect(() => {
     getTxs();
@@ -42,7 +42,7 @@ function All() {
 
 
 function defineAllBody(noteB64) {
-  if (noteB64 == null || noteB64 == '') {
+  if (noteB64 === null || noteB64 == '') {
     return (
       <div></div>
     )
@@ -51,17 +51,17 @@ function defineAllBody(noteB64) {
   const noteTxt = atob(noteB64);
   const category = noteTxt.slice(8, 9);
 
-  if (category == 'd') {
+  if (category === 'd') {
     const targetTxId = noteTxt.slice(10, 62);
     return <Text>+1 {'-->'} <Link to={`/replies/${targetTxId}`}>{getShortenedBase32(targetTxId)}</Link></Text>
   }
 
-  if (category == 'l') {
+  if (category === 'l') {
     const targetTxId = noteTxt.slice(10, 62);
     return <Text>-1 {'-->'} <Link to={`/replies/${targetTxId}`}>{getShortenedBase32(targetTxId)}</Link></Text>
   }
 
-  if (category == 't' || category == 'a' || category == 'r') {
+  if (category === 't' || category === 'a' || category === 'r') {
 
     const parts = noteTxt.split(';');
     if (parts.length != 5) {
@@ -71,7 +71,7 @@ function defineAllBody(noteB64) {
     const handle = parts[3];
     const msg = parts[4];
 
-    if (category == 'a') {
+    if (category === 'a') {
       return (
         <div>
           <Text>{handle} posted the following:</Text>
@@ -81,7 +81,7 @@ function defineAllBody(noteB64) {
       );
     }
 
-    if (category == 'r') {
+    if (category === 'r') {
       const replyToTxId = parts[2];
       return (
         <div>
@@ -92,7 +92,7 @@ function defineAllBody(noteB64) {
       );
     }
 
-    if (category == 't') {
+    if (category === 't') {
       const topic = parts[2];
       return (
         <div>
