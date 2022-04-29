@@ -2,7 +2,7 @@ import React from 'react';
 import { Grommet } from 'grommet';
 // import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import All from './All';
+// import All from './All';
 /* import Topic from './Topic';
 import Replies from './Replies'; */
 
