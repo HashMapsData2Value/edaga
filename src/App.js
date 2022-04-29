@@ -19,7 +19,7 @@ const theme = {
 function App() { 
   return (
     <Grommet theme={theme}>
-      <BrowserRouter basename={'/edaga'}>
+      <BrowserRouter basename={'/edaga'}> {/* Hardcoded to make react-router-dom work with Github Pages */}
         <Routes>
           <Route index element={<All />} />
           <Route path='replies/:txId' element={<Replies />} />
