@@ -21,9 +21,11 @@ function App() {
     <Grommet theme={theme}>
       <BrowserRouter basename={`/${process.env.PUBLIC_URL}`}>
         <Routes>
+        <Route path="/" element={<All />}>
           <Route index element={<All />} />
           <Route path="replies/:txId" element={<Replies />} />
           <Route path="topic/:topic" element={<Topic />} />
+        </Route>
         </Routes>
       </BrowserRouter>
     </Grommet>
