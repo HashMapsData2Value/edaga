@@ -19,7 +19,9 @@ const theme = {
 function App() { 
   return (
     <Grommet theme={theme}>
-    <All/>
+    <div>
+      <h3>Test</h3>
+    </div>
 {/*       <BrowserRouter basename={`/${process.env.PUBLIC_URL}`}>
         <Routes>
           <Route index element={<All />} />
