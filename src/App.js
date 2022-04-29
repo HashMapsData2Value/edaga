@@ -16,7 +16,7 @@ const theme = {
   },
 };
 
-function App() {
+function App() { 
   return (
     <Grommet theme={theme}>
       <BrowserRouter>
