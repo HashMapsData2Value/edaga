@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "https://hashmapsdata2value.github.io/edaga/static/js/main.b9c21fb0.js",
+    "main.js": "https://hashmapsdata2value.github.io/edaga/static/js/main.f8019791.js",
     "index.html": "https://hashmapsdata2value.github.io/edaga/index.html",
-    "main.b9c21fb0.js.map": "https://hashmapsdata2value.github.io/edaga/static/js/main.b9c21fb0.js.map"
+    "main.f8019791.js.map": "https://hashmapsdata2value.github.io/edaga/static/js/main.f8019791.js.map"
   },
   "entrypoints": [
-    "static/js/main.b9c21fb0.js"
+    "static/js/main.f8019791.js"
   ]
 }
