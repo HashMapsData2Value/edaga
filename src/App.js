@@ -1,10 +1,10 @@
 import React from 'react';
 import { Grommet } from 'grommet';
-// import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// import All from './All';
-/* import Topic from './Topic';
-import Replies from './Replies'; */
+import All from './All';
+import Topic from './Topic';
+import Replies from './Replies';
 
 const theme = {
   global: {
@@ -19,16 +19,13 @@ const theme = {
 function App() { 
   return (
     <Grommet theme={theme}>
-    <div>
-      <h3>Test</h3>
-    </div>
-{/*       <BrowserRouter basename={`/${process.env.PUBLIC_URL}`}>
+      <BrowserRouter basename={'/edaga'}>
         <Routes>
           <Route index element={<All />} />
-          <Route path="replies/:txId" element={<Replies />} />
-          <Route path="topic/:topic" element={<Topic />} />
+          <Route path='replies/:txId' element={<Replies />} />
+          <Route path='topic/:topic' element={<Topic />} />
         </Routes>
-      </BrowserRouter> */}
+      </BrowserRouter>
     </Grommet>
   );
 }
