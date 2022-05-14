@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 
 
 export function getShortenedBase32(input) {
+  if(input === null || input === '' || input === undefined) {
+    return
+  }
   return input.slice(0, 7) + '...' + input.slice(-3)
 }
 
@@ -12,7 +15,6 @@ export function defineBody(noteB64) {
   }
 
   const noteTxt = atob(noteB64);
-  console.log(noteTxt)
   const category = noteTxt.slice(8, 9);
 
   if (category === 'd') {
@@ -29,7 +31,6 @@ export function defineBody(noteB64) {
 
     const parts = noteTxt.split(';');
     if (parts.length !== 5) {
-      console.log(noteTxt);
       return <Text>Malformed transaction.</Text>
     }
     const handle = parts[3];
@@ -84,7 +85,6 @@ export function defineTopicBody(noteB64) {
 
     const parts = noteTxt.split(';');
     if (parts.length !== 5) {
-      console.log(noteTxt);
       return <Text>Malformed transaction.</Text>
     }
     const handle = parts[3];
@@ -123,7 +123,6 @@ export function defineRepliesBody(noteB64) {
 
     const parts = noteTxt.split(';');
     if (parts.length !== 5) {
-      console.log(noteTxt);
       return <Text>Malformed transaction.</Text>
     }
     const handle = parts[3];
@@ -163,7 +162,6 @@ export function defineAllBody(noteB64) {
 
     const parts = noteTxt.split(';');
     if (parts.length !== 5) {
-      console.log(noteTxt);
       return <Text>Malformed transaction.</Text>
     }
     const handle = parts[3];

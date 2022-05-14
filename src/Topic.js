@@ -15,7 +15,7 @@ function Topic() {
   }, [topic])
 
   const getTopicTxs = async (topic) => {
-    const topicTxsUrl = `https://mainnet-idx.algonode.cloud/v2/accounts/K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI/transactions?note-prefix=${btoa('ARC00-0;t;' + topic)}`
+    const topicTxsUrl = `https://testnet-idx.algonode.cloud/v2/accounts/K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI/transactions?note-prefix=${btoa('ARC00-0;t;' + topic)}`
     const response = await fetch(topicTxsUrl);
     const data = await response.json();
     setTopicTxs(data.transactions);
