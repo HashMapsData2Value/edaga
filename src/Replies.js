@@ -42,7 +42,6 @@ function Replies() {
         const data = await response.json();
         if(data.transactions.length > 0){
           repliesAll.push(data.transactions[0]);
-          console.log(repliesAll);
         }
       }
     setReplies(repliesAll.sort((a, b) => {
