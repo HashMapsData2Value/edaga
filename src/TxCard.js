@@ -1,7 +1,8 @@
 import React from 'react';
 import { Box, Card, CardHeader, CardBody, CardFooter, Text } from 'grommet';
 import { Link } from 'react-router-dom';
-import getShortenedBase32 from './utils';
+import { getShortenedBase32 } from './utils';
+
 
 const TxCard = ({ id, sender, fee, confirmedRound, body }) => {
   return (
