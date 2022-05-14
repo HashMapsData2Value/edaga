@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Page, PageContent } from 'grommet';
 import TxCard from './TxCard';
-import { defineBody } from './utils';
+import { defineAllBody } from './utils';
 
 
 function All() {
@@ -28,7 +28,7 @@ function All() {
               sender={tx['sender']}
               fee={tx['fee']}
               confirmedRound={tx['confirmed-round']}
-              body={defineBody(tx['note'])}
+              body={defineAllBody(tx['note'])}
             />
           </PageContent>
         ))}

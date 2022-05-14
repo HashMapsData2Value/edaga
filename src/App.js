@@ -22,7 +22,7 @@ function App() {
       <BrowserRouter basename={'/edaga'}> {/* Hardcoded to make react-router-dom work with Github Pages */}
         <Routes>
           <Route index element={<All />} />
-          <Route path='replies/:txId' element={<Replies />} />
+          <Route path='replies/:originalTxId' element={<Replies />} />
           <Route path='topic/:topic' element={<Topic />} />
         </Routes>
       </BrowserRouter>
