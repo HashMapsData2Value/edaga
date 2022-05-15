@@ -6,6 +6,17 @@ Note that this MVP directly queries a [free indexer hosted by AlgoNode](https://
 
 The app gets built and published to Github Pages and be [viewed here](https://hashmapsdata2value.github.io/edaga/). However, GitHub Pages and React-Router do not mesh well so, until a superior (non-free) solution is made, it's suggested that you pull down the code and simply run `yarn start`. 
 
+# TODO
+
+- [] Improve UI and make responsive.
+- [] Add a text field and submit button allowing your address to submit a transaction.
+- [] Add Wallet Connect integration, such that you can "log in" with it. [Fiona Chan's repo can serve as an example.](https://github.com/fionnachan/algorand-wallet-walletconnect-redux).
+- [] Add a "reply" button that shortcuts into the text field.
+- [] Add 👍, 👎 react buttons
+- [] Add QR-code generation (for scanning with Pera Wallet), using [MG's Algorand QR code generator repo](https://github.com/emg110/algorand-qrcode). It should be autogenerating a new QR code with each key stroke.
+- [] Add AlgoSigner integration.
+
+
 # Current Message Format
 
 To interact with this message board you need to send ***0*** (ZERO) Algo transaction to a specific address with a message in the note field. That message needs to be formatted in a specific way. Note that it is a ZERO Algo transaction. You will ***never be asked to send Algo to ANYONE***. At most you can choose to spend a higher transaction fee, to show how "strongly" you feel about something; but that transaction fee is recycled through the Algorand protocol.
