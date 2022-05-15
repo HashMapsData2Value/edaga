@@ -8,14 +8,13 @@ The app gets built and published to Github Pages and be [viewed here](https://ha
 
 # TODO
 
-- [] Improve UI and make responsive.
-- [] Add a text field and submit button allowing your address to submit a transaction.
-- [] Add Wallet Connect integration, such that you can "log in" with it. [Fiona Chan's repo can serve as an example.](https://github.com/fionnachan/algorand-wallet-walletconnect-redux).
-- [] Add a "reply" button that shortcuts into the text field.
-- [] Add 👍, 👎 react buttons
-- [] Add QR-code generation (for scanning with Pera Wallet), using [MG's Algorand QR code generator repo](https://github.com/emg110/algorand-qrcode). It should be autogenerating a new QR code with each key stroke.
-- [] Add AlgoSigner integration.
-
+- [ ] Improve UI and make responsive.
+- [ ] Add a text field and submit button allowing your address to submit a transaction.
+- [ ] Add Wallet Connect integration, such that you can "log in" with it. [Fiona Chan's repo can serve as an example.](https://github.com/fionnachan/algorand-wallet-walletconnect-redux).
+- [ ] Add a "reply" button that shortcuts into the text field.
+- [ ] Add 👍, 👎 react buttons
+- [ ] Add QR-code generation (for scanning with Pera Wallet), using [MG's Algorand QR code generator repo](https://github.com/emg110/algorand-qrcode). It should be autogenerating a new QR code with each key stroke.
+- [ ] Add AlgoSigner integration.
 
 # Current Message Format
 
