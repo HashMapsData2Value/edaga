@@ -1,25 +1,29 @@
 import React from "react";
-import { Box } from "@mui/material";
-import { data } from "../sampleData";
+import { Box, CircularProgress } from "@mui/material";
 import TxCard from "../components/cards/TxCard";
+import { fetchAllTxns } from "./api";
+import { useQuery } from "react-query";
 
 const Main = () => {
+  const allTxnsQuery = useQuery("all_txns", fetchAllTxns);
+  console.log({ allTxnsQuery });
+
   return (
-    <Box>
-      {data.transactions.map((tx) => {
-        return (
-          <Box>
-            <TxCard
-              id={tx["id"]}
-              sender={tx["sender"]}
-              fee={tx["fee"]}
-              confirmedRound={tx["confirmed-round"]}
-              body={tx["note"]}
-            />
-          </Box>
-        );
-      })}
-    </Box>
+    <>
+      {allTxnsQuery.isFetching ? (
+        <CircularProgress />
+      ) : (
+        <Box>
+          {allTxnsQuery.data.transactions.map((txn) => {
+            return (
+              <Box>
+                <TxCard key={txn.id} txn={txn} type="all" />
+              </Box>
+            );
+          })}
+        </Box>
+      )}
+    </>
   );
 };
 

@@ -9,7 +9,7 @@ import {
   SxProps,
 } from "@mui/material";
 import { getShortenedBase32 } from "../../utils";
-import { AllBody } from "../body";
+import { AllBody, ReplyBody, TopicBody } from "../body";
 
 const txCard: SxProps = { my: 3 };
 
@@ -38,13 +38,25 @@ const renderHeader = (sender) => {
   );
 };
 
-const TxCard = ({ id, sender, fee, confirmedRound, body }) => {
+const renderBody = (txn, type: string) => {
+  if (type === "all") {
+    return <AllBody noteB64={txn.note} />;
+  }
+  if (type === "reply") {
+    return <ReplyBody noteB64={txn.note} />;
+  }
+  if (type === "topic") {
+    return <TopicBody noteB64={txn.note} />;
+  }
+};
+
+const TxCard = ({ txn, type }) => {
+  const { id, sender, fee, confirmedRound, note } = txn;
+  console.log({ txn });
   return (
     <Card sx={txCard}>
       <CardHeader title={renderHeader(sender)}></CardHeader>
-      <CardContent sx={cardContent}>
-        <AllBody noteB64={body} />
-      </CardContent>
+      <CardContent sx={cardContent}>{renderBody(txn, "all")}</CardContent>
       <CardActions sx={cardActions}>
         <Typography>Fee: {fee}</Typography>
         <Typography>
