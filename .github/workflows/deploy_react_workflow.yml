@@ -5,13 +5,15 @@ name: Builds and pushes Edaga to github deploy
 on:
   push:
     branches: [ main ]
+permissions:
+  contents: write
 
 jobs:
   build:
     name: Build & Deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: borales/actions-yarn@v4
         with:
           cmd: install # will run `yarn install` command
@@ -23,5 +25,3 @@ jobs:
         with:
           branch: gh-pages
           folder: build
-          ssh-key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-
