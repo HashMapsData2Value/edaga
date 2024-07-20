@@ -7,7 +7,7 @@ import { getShortenedBase32 } from './utils';
 const TxCard = ({ id, sender, fee, confirmedRound, body }) => {
   return (
     <Card height="small" width="large" padding="1" background="light-1">
-      <CardHeader pad="small">By: <a href={'https://testnet.algoexplorer.io/address/' + sender}>{getShortenedBase32(sender)}</a></CardHeader>
+      <CardHeader pad="small">By: <a href={'https://testnet.explorer.perawallet.app/address/' + sender}>{getShortenedBase32(sender)}</a></CardHeader>
       <CardBody pad="medium"><Box>{body}</Box></CardBody>
       <CardFooter pad={{ horizontal: "small" }} background="light-2">
         <Text>Fee: {fee}</Text>
