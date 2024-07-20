@@ -52,11 +52,11 @@ function Replies() {
   return (
     <div>
       <Main pad="large">
-        <Heading><Text><a href={'https://testnet.algoexplorer.io/tx/' + originalTxId}>{originalTxId}</a></Text></Heading>
+        <Heading><Text><a href={'http://testnet.explorer.perawallet.app/tx/' + originalTxId}>{originalTxId}</a></Text></Heading>
         {defineBody(originalTx['note'])}
         <Text>Fee: {originalTx['fee']}</Text>
-        <Text>Block: <a href={'https://testnet.algoexplorer.io/block/' + originalTx['confirmed-round']}>{originalTx['confirmed-round']}</a></Text>
-        <Text>Sender: <a href={'https://testnet.algoexplorer.io/address/' + originalTx['sender']}>{getShortenedBase32(originalTx['sender'])}</a></Text>
+        <Text>Block: <a href={'http://testnet.explorer.perawallet.app/block/' + originalTx['confirmed-round']}>{originalTx['confirmed-round']}</a></Text>
+        <Text>Sender: <a href={'http://testnet.explorer.perawallet.app/address/' + originalTx['sender']}>{getShortenedBase32(originalTx['sender'])}</a></Text>
       </Main>
 
       <Page kind="narrow">
