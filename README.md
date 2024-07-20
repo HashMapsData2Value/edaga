@@ -23,7 +23,7 @@ To interact with this message board you need to send ***0*** (ZERO) Algo transac
 
 This app is currently ***set to testnet***.
 
-The specific address is controlled by Hash: [K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI](https://testnet.algoexplorer.io/address/K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI). Once again, do NOT send any Algo. Specify 0 (ZERO) Algo.
+The specific address is controlled by Hash: [K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI](https://testnet.explorer.perawallet.app/address/K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI). Once again, do NOT send any Algo. Specify 0 (ZERO) Algo.
 
 At this stage of the project we are making use of the Algorand indexer's API, which has note-prefix search functionality. In the future something more advanced could be made (e.g. by fiddling with the PostgreSQL, depositing the notes into Elasticsearch, putting it behind a RedisDB Cache) but for now we just make the best of the API available.
 
