@@ -1,3 +1,8 @@
+export interface Txn {
+  "current-round": number;
+  transaction: TxnProps;
+}
+
 export interface TxnProps {
   "close-rewards": number;
   "closing-amount": number;

@@ -1,4 +1,3 @@
-import { Text } from "grommet";
 import { Link } from "react-router-dom";
 
 export const getTxns = async () => {

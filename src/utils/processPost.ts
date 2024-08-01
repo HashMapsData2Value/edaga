@@ -11,6 +11,8 @@ export enum MessageType {
 export interface MessageReturn {
   sender: string;
   id: string;
+  block: number;
+  fee: number;
   nickname: string;
   type: MessageType;
   message?: string;
@@ -57,49 +59,76 @@ export const processMessage = (txn: TxnProps): Message => {
     [MessageType.All]: (): MessageReturn => ({
       sender: txn.sender,
       id: txn.id,
+      block: txn["confirmed-round"],
+      fee: txn.fee,
       nickname: parsedNoteArray[3] || "",
       type: MessageType.All,
       message: parsedNoteArray[4] || "",
       timestamp: txn["round-time"],
-      debug: parsedNoteArray,
+      debug: {
+        parsedNoteArray,
+        txn,
+      },
     }),
     [MessageType.Topic]: (): MessageReturn => ({
       sender: txn.sender,
       id: txn.id,
+      block: txn["confirmed-round"],
+      fee: txn.fee,
       nickname: parsedNoteArray[3] || "",
       type: MessageType.Topic,
       topic: parsedNoteArray[2] || "",
       message: parsedNoteArray[4] || "",
       timestamp: txn["round-time"],
-      debug: parsedNoteArray,
+      debug: {
+        parsedNoteArray,
+        txn,
+      },
     }),
     [MessageType.Reply]: (): MessageReturn => ({
       sender: txn.sender,
       id: txn.id,
+      block: txn["confirmed-round"],
+      fee: txn.fee,
       nickname: parsedNoteArray[3] || "",
       type: MessageType.Reply,
       parentId: parsedNoteArray[2] || "",
       message: parsedNoteArray[4] || "",
       timestamp: txn["round-time"],
-      debug: parsedNoteArray,
+      debug: {
+        parsedNoteArray,
+        txn,
+      },
     }),
     [MessageType.Like]: (): MessageReturn => ({
       sender: txn.sender,
       id: txn.id,
+      block: txn["confirmed-round"],
+      fee: txn.fee,
       nickname: parsedNoteArray[3] || "",
       type: MessageType.Like,
       parentId: parsedNoteArray[2] || "",
       timestamp: txn["round-time"],
-      debug: parsedNoteArray,
+      message: "👍", // TODO - Refactor into actual likes
+      debug: {
+        parsedNoteArray,
+        txn,
+      },
     }),
     [MessageType.Dislike]: (): MessageReturn => ({
       sender: txn.sender,
       id: txn.id,
+      block: txn["confirmed-round"],
+      fee: txn.fee,
       nickname: parsedNoteArray[3] || "",
       type: MessageType.Dislike,
       parentId: parsedNoteArray[2] || "",
       timestamp: txn["round-time"],
-      debug: parsedNoteArray,
+      message: "👎", // TODO - Refactor into actual dislikes
+      debug: {
+        parsedNoteArray,
+        txn,
+      },
     }),
   };
 

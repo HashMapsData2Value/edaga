@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { format } from "date-fns";
+
 import { getTxns } from "@/utils";
 import Layout from "@/components/common/Layout";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Message,
   MessageReturn,
   MessageType,
   processMessage,
@@ -30,13 +30,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Icon from "@/components/common/Icon";
 import { Link } from "react-router-dom";
+import { Badge } from "../ui/badge";
 
 const BREADCRUMBS = [
   { label: "Edaga", link: "#" },
-  { label: "Conversations", link: "#" },
+  { label: "Topics", link: `/edaga/topics/` },
 ];
 
-function All() {
+function Topics() {
   const [transactions, setTransactions] = useState<TxnProps[]>([]);
 
   useEffect(() => {
@@ -63,24 +64,26 @@ function All() {
             debug,
           } = post;
 
-          if (
-            post.type === MessageType.All ||
-            post.type === MessageType.Reply
-          ) {
+          if (post.type === MessageType.Topic) {
             const isReply = "parentId" in post ? true : false;
 
             return (
               <Fragment key={id}>
                 <Card>
                   <CardHeader>
-                    <CardTitle>
-                      {nickname}&nbsp;&nbsp;
-                      <small
-                        className="text-s font-light text-muted-foreground"
-                        title={sender}
-                      >
-                        {shortenedAccountBase32(sender)}
-                      </small>
+                    <CardTitle className="flex items-center">
+                      <div>
+                        {nickname}&nbsp;&nbsp;
+                        <small
+                          className="text-s font-light text-muted-foreground"
+                          title={sender}
+                        >
+                          {shortenedAccountBase32(sender)}
+                        </small>
+                      </div>
+                      {post.topic && (
+                        <Badge className="ml-auto">{post.topic}</Badge>
+                      )}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6 pb-10">
@@ -144,7 +147,7 @@ function All() {
                           >
                             <Link
                               className="flex items-center gap-1 text-xs text-muted-foreground"
-                              to={`replies/${id}`}
+                              to={`/replies/${id}`}
                             >
                               Replies
                               <Icon.MessageCircleMore className="h-4 w-4 ml-1.5 text-muted-foreground" />
@@ -202,4 +205,4 @@ function All() {
   );
 }
 
-export default All;
+export default Topics;

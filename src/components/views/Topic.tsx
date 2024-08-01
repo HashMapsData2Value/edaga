@@ -1,58 +1,206 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Main, Page, PageContent, Text } from "grommet";
+import { Fragment, useEffect, useState } from "react";
+import { format } from "date-fns";
 
-import TxCard from "@/components/app/TxCard";
-import { defineTopicBody } from "@/utils/legacy";
+import { getTxns } from "@/utils";
+import Layout from "@/components/common/Layout";
+import { Button } from "@/components/ui/button";
 
-interface Transaction {
-  id: string;
-  sender: string;
-  fee: number;
-  "confirmed-round": number;
-  note: string;
-}
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Message,
+  MessageReturn,
+  MessageType,
+  processMessage,
+} from "@/utils/processPost";
+import { TxnProps } from "@/types";
+import { microalgosToAlgos, shortenedAccountBase32 } from "@/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Icon from "@/components/common/Icon";
+import { Link } from "react-router-dom";
 
-function Topic() {
-  const { topic } = useParams<{ topic: string }>();
+const BREADCRUMBS = [
+  { label: "Edaga", link: "#" },
+  { label: "Home", link: "#" },
+];
 
-  const [topicTxs, setTopicTxs] = useState<Transaction[]>([]);
+function All() {
+  const [transactions, setTransactions] = useState<TxnProps[]>([]);
 
   useEffect(() => {
-    getTopicTxs(topic);
-  }, [topic]);
-
-  const getTopicTxs = async (topic: string | undefined) => {
-    if (!topic) return;
-    const topicTxsUrl = `https://testnet-idx.algonode.cloud/v2/accounts/K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI/transactions?note-prefix=${btoa(
-      "ARC00-0;t;" + topic
-    )}`;
-    const response = await fetch(topicTxsUrl);
-    const data = await response.json();
-    setTopicTxs(data.transactions);
-  };
+    getTxns().then((transactions) => {
+      setTransactions(transactions);
+    });
+  }, []);
 
   return (
-    <div>
-      <Main pad="large">
-        <Text>Viewing Topic: {topic}</Text>
-      </Main>
+    <Layout breadcrumbOptions={BREADCRUMBS}>
+      <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
+        {transactions.map((tx: TxnProps) => {
+          const post = processMessage(tx) as MessageReturn;
 
-      <Page kind="narrow">
-        {topicTxs.map((tx) => (
-          <PageContent key={tx.id}>
-            <TxCard
-              id={tx.id}
-              sender={tx.sender}
-              fee={tx.fee}
-              confirmedRound={tx["confirmed-round"]}
-              body={defineTopicBody(tx.note)}
-            />
-          </PageContent>
-        ))}
-      </Page>
-    </div>
+          const {
+            sender,
+            id,
+            block,
+            fee,
+            nickname,
+            type,
+            message,
+            timestamp,
+            debug,
+          } = post;
+
+          if (
+            post.type === MessageType.All ||
+            post.type === MessageType.Reply
+          ) {
+            const isReply = "parentId" in post ? true : false;
+
+            return (
+              <Fragment key={id}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      {nickname}&nbsp;&nbsp;
+                      <small
+                        className="text-s font-light text-muted-foreground"
+                        title={sender}
+                      >
+                        {shortenedAccountBase32(sender)}
+                      </small>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 pb-10">
+                    <div className="grid gap-6">
+                      <div className="grid gap-3">
+                        <h4 className="scroll-m-20 text-xl font-regular tracking-tight">
+                          {message}
+                        </h4>
+                        {isReply && (
+                          <Link to={`replies/${post.parentId}`}>
+                            <blockquote className="mt-6 pl-6 border-l-2 text-muted-foreground">
+                              <CardDescription>
+                                <small>Replying to:</small>
+                              </CardDescription>
+                              {
+                                (
+                                  processMessage(
+                                    transactions.find(
+                                      (txn) => txn.id === post.parentId
+                                    ) || ({} as TxnProps)
+                                  ) as MessageReturn
+                                ).message
+                              }
+                            </blockquote>
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                    <div
+                      className="grid gap-3 mt-6"
+                      style={{
+                        width: 500,
+                        overflow: "hidden",
+                        overflowX: "scroll",
+                        border: "1px dotted red",
+                      }}
+                    >
+                      <pre className="text-xs">
+                        {JSON.stringify(post, null, 2)}
+                      </pre>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-3">
+                    <div className="text-xs text-muted-foreground">
+                      <time dateTime="2023-11-23">
+                        {format(
+                          new Date(timestamp * 1000),
+                          " hh:mm:ss - do MMMM yyyy"
+                        )}
+                      </time>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      {!isReply && (
+                        <div className="text-xs text-muted-foreground">
+                          <Button
+                            aria-haspopup="true"
+                            size="sm"
+                            variant="ghost"
+                            className="h-6"
+                          >
+                            <Link
+                              className="flex items-center gap-1 text-xs text-muted-foreground"
+                              to={`replies/${id}`}
+                            >
+                              Replies
+                              <Icon.MessageCircleMore className="h-4 w-4 ml-1.5 text-muted-foreground" />
+                            </Link>
+                          </Button>
+                        </div>
+                      )}
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            aria-haspopup="true"
+                            size="icon"
+                            variant="ghost"
+                            className="h-6 w-6"
+                          >
+                            <Icon.MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Link
+                              to={`https://testnet.explorer.perawallet.app/tx/${id}/`}
+                              target="_blank"
+                              title="View transaction on Pera Explorer"
+                            >
+                              View Message ID
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Link
+                              to={`https://testnet.explorer.perawallet.app/block/${block}/`}
+                              target="_blank"
+                              title="View block on Pera Explorer"
+                            >
+                              View Block
+                            </Link>
+                          </DropdownMenuItem>
+                          {/* <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-foreground-muted">
+                            {`Fee: ${microalgosToAlgos(fee)}`}
+                          </DropdownMenuItem> */}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </CardFooter>
+                </Card>
+              </Fragment>
+            );
+          }
+        })}
+      </div>
+    </Layout>
   );
 }
 
-export default Topic;
+export default All;

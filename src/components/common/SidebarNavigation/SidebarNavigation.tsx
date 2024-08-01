@@ -6,7 +6,6 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import Icon from "@/components/common/Icon";
 
 type SidebarNavigationItemProps = {
   label: string;

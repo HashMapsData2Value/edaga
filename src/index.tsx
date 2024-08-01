@@ -9,7 +9,7 @@ import "@/style/global.css";
 import Replies from "@/components/views/Replies";
 import Topic from "@/components/views/Topic";
 import All from "@/components/views/All";
-import ExampleLayout from "@/components/app/ExampleLayout";
+import Topics from "./components/views/Topics";
 
 const router = createBrowserRouter(
   [
@@ -22,16 +22,17 @@ const router = createBrowserRouter(
       element: <Replies />,
     },
     {
-      path: "topic/:topic",
-      element: <Topic />,
-    },
-    {
-      path: "/example-layout/1",
-      element: <ExampleLayout.One />,
-    },
-    {
-      path: "/example-layout/2",
-      element: <ExampleLayout.Two />,
+      path: "topics",
+      children: [
+        {
+          path: "",
+          element: <Topics />,
+        },
+        {
+          path: ":topic",
+          element: <Topic />, // Specific topic page
+        },
+      ],
     },
   ],
   {
