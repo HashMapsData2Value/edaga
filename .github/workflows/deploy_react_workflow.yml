@@ -1,10 +1,9 @@
-# This is a basic workflow to help you get started with Actions
-
-name: Builds and pushes Edaga to github deploy
+name: Builds and pushes Edaga to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+
 permissions:
   contents: write
 
@@ -13,15 +12,22 @@ jobs:
     name: Build & Deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: borales/actions-yarn@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          cmd: install # will run `yarn install` command
-      - uses: borales/actions-yarn@v4
-        with:
-          cmd: build # will run `yarn build` command
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build project
+        run: bun run build
+
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@4.1.4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
           folder: build
