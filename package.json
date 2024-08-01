@@ -23,7 +23,6 @@
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
     "framer-motion": "^11.3.17",
-    "grommet": "^2.39.0",
     "lucide-react": "^0.416.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
