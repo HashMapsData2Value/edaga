@@ -4,12 +4,12 @@ A rough companion MVP to [this ARC](https://github.com/algorandfoundation/ARCs/i
 
 Note that this MVP directly queries a [free indexer hosted by AlgoNode](https://algonode.io/). In the proposal I suggest an additional layer, an aggregation layer that would handle filtering, recommendation, caching, etc; that would in turn feed the UI-layer.
 
-The app gets built and published to Github Pages and be [viewed here](https://hashmapsdata2value.github.io/edaga/). However, GitHub Pages and React-Router do not mesh well so, until a superior (non-free) solution is made, it's suggested that you pull down the code and simply run `yarn start`. 
+The app gets built and published to Github Pages and be [viewed here](https://hashmapsdata2value.github.io/edaga/). However, GitHub Pages and React-Router do not mesh well so, until a superior (non-free) solution is made, it's suggested that you pull down the code and simply run `bun dev`. 
 
 # TODO
 
 - [x] Setup basic site that can be interacted with if you manually format out a transaction message and send from a wallet. 
-- [ ] Improve UI and make responsive.
+- [x] Improve UI and make responsive.
 - [ ] Add a text field and submit button allowing your address to submit a transaction.
 - [ ] Add Wallet Connect integration, such that you can "log in" with it. [Fiona Chan's repo can serve as an example.](https://github.com/fionnachan/algorand-wallet-walletconnect-redux).
 - [ ] Add a "reply" button that shortcuts into the text field.
