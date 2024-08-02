@@ -4,8 +4,8 @@ import All from "@/components/views/All";
 import Topic from "@/components/views/Topic";
 import Replies from "@/components/views/Replies";
 
-export const BASE_PATH = "/edaga";
-// export const BASE_PATH = "";
+// export const BASE_PATH = "/edaga";
+export const BASE_PATH = "";
 
 function App() {
   return (
