@@ -8,12 +8,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Search as IconSearch, UserRound as IconUserRound } from "lucide-react";
 
 import { ReactNode } from "react";
 import MainNavigation, {
   type MainNavigationItemProps,
 } from "@/components/app/MainNavigation";
-import Icon from "@/components/common/Icon";
 import Breadcrumb from "@/components/common/Breadcrumb";
 
 interface MainHeaderProps {
@@ -34,7 +34,7 @@ const MainHeader = ({
       <MainNavigation title={title} icon={icon} options={navigationOptions} />
       <Breadcrumb options={breadcrumbOptions} />
       <div className="relative ml-auto flex-1 md:grow-0">
-        <Icon.Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <IconSearch className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search..."
@@ -48,7 +48,7 @@ const MainHeader = ({
             size="icon"
             className="overflow-hidden rounded-full"
           >
-            <Icon.UserRound className="h-5 w-5 text-muted-foreground" />
+            <IconUserRound className="h-5 w-5 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

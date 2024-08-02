@@ -1,15 +1,14 @@
+import { ReactNode } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu as DropdownMenuContainer,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Icon from "@/components/common/Icon";
-import { ReactNode } from "react";
 
 interface DropdownOption {
   title: string;

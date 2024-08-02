@@ -9,23 +9,20 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { MessageReturn, processMessage } from "@/utils/processPost";
 import { Txn, TxnProps } from "@/types";
-import { microalgosToAlgos, shortenedAccountBase32 } from "@/utils";
+import { shortenedAccountBase32 } from "@/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Icon from "@/components/common/Icon";
+import { MoreHorizontal as IconMoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 
 function Replies() {
@@ -62,7 +59,7 @@ function Replies() {
   }, [originalTx]);
 
   const getReplies = async (originalTxId: string) => {
-    let repliesAll: TxnProps[] = [];
+    const repliesAll: TxnProps[] = [];
 
     const replyTypes = ["ARC00-0;r;", "ARC00-0;l;", "ARC00-0;d;"];
     for (let i = 0; i < replyTypes.length; i++) {
@@ -144,7 +141,7 @@ function Replies() {
                     variant="ghost"
                     className="h-6 w-6"
                   >
-                    <Icon.MoreHorizontal className="h-4 w-4" />
+                    <IconMoreHorizontal className="h-4 w-4" />
                     <span className="sr-only">Toggle menu</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -178,17 +175,7 @@ function Replies() {
 
           {replies.map((tx: TxnProps) => {
             const post = processMessage(tx) as MessageReturn;
-            const {
-              sender,
-              id,
-              block,
-              fee,
-              nickname,
-              type,
-              message,
-              timestamp,
-              debug,
-            } = post;
+            const { sender, id, block, nickname, message, timestamp } = post;
 
             return (
               <Fragment key={id}>
@@ -245,7 +232,7 @@ function Replies() {
                             variant="ghost"
                             className="h-6 w-6"
                           >
-                            <Icon.MoreHorizontal className="h-4 w-4" />
+                            <IconMoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Toggle menu</span>
                           </Button>
                         </DropdownMenuTrigger>

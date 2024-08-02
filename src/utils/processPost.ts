@@ -19,7 +19,7 @@ export interface MessageReturn {
   timestamp: number;
   parentId?: string;
   topic?: string;
-  debug: any;
+  debug: unknown;
 }
 
 export interface ErrorReturn {
@@ -47,8 +47,6 @@ export const processMessage = (txn: TxnProps): Message => {
   const parseNoteField = decodeBase64ToUint8Array(txn.note);
   const decodeNoteField = decodeUint8ArrayToString(parseNoteField);
   const parsedNoteArray = decodeNoteField.split(";");
-
-  let message: Message;
 
   if (parsedNoteArray[0] !== "ARC00-0")
     return { error: "Invalid message format" };
@@ -132,7 +130,5 @@ export const processMessage = (txn: TxnProps): Message => {
     }),
   };
 
-  message = messageParsers[msgType]();
-
-  return message;
+  return messageParsers[msgType]();
 };

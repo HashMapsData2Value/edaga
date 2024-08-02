@@ -1,7 +1,14 @@
 import { ReactNode, useEffect } from "react";
 
 import SidebarNavigation from "@/components/common/SidebarNavigation";
-import Icon from "@/components/common/Icon";
+import {
+  Home as IconHome,
+  LibraryBig as IconLibraryBig,
+  Info as IconInfo,
+  Store as IconStore,
+  ChevronLeft as IconChevronLeft,
+} from "lucide-react";
+
 import MainHeader from "@/components/common/MainHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +17,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -31,19 +37,21 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
     {
       label: "Home",
       link: "/edaga",
-      icon: <Icon.Home className="h-5 w-5" />,
-      selected: !location.pathname.includes("topics" || "about"),
+      icon: <IconHome className="h-5 w-5" />,
+      selected:
+        !location.pathname.includes("topics") &&
+        !location.pathname.includes("about"),
     },
     {
       label: "Topics",
       link: "/edaga/topics",
-      icon: <Icon.LibraryBig className="h-5 w-5" />,
+      icon: <IconLibraryBig className="h-5 w-5" />,
       selected: location.pathname.includes("topics"),
     },
     {
       label: "About",
       link: "#",
-      icon: <Icon.Info className="h-5 w-5" />,
+      icon: <IconInfo className="h-5 w-5" />,
       selected: location.pathname.includes("about"),
     },
   ];
@@ -80,7 +88,7 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
       <SidebarNavigation
         title="Edaga"
         icon={
-          <Icon.Store className="h-4 w-4 transition-all group-hover:scale-110" />
+          <IconStore className="h-4 w-4 transition-all group-hover:scale-110" />
         }
         options={NAVIGATION}
       />
@@ -89,7 +97,7 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
         <MainHeader
           title="Edaga"
           icon={
-            <Icon.Store className="h-5 w-5 transition-all group-hover:scale-110" />
+            <IconStore className="h-5 w-5 transition-all group-hover:scale-110" />
           }
           navigationOptions={NAVIGATION}
           breadcrumbOptions={breadcrumbOptions}
@@ -105,7 +113,7 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
                   className="h-7 w-7"
                   onClick={() => navigate(-1)}
                 >
-                  <Icon.ChevronLeft className="h-4 w-4" />
+                  <IconChevronLeft className="h-4 w-4" />
                   <span className="sr-only">Back</span>
                 </Button>
               )}

@@ -19,16 +19,17 @@ import {
   processMessage,
 } from "@/utils/processPost";
 import { TxnProps } from "@/types";
-import { microalgosToAlgos, shortenedAccountBase32 } from "@/utils";
+import { shortenedAccountBase32 } from "@/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Icon from "@/components/common/Icon";
+import {
+  MessageCircleMore as IconMessageCircleMore,
+  MoreHorizontal as IconMoreHorizontal,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "../ui/badge";
 
@@ -52,17 +53,7 @@ function Topics() {
         {transactions.map((tx: TxnProps) => {
           const post = processMessage(tx) as MessageReturn;
 
-          const {
-            sender,
-            id,
-            block,
-            fee,
-            nickname,
-            type,
-            message,
-            timestamp,
-            debug,
-          } = post;
+          const { sender, id, block, nickname, message, timestamp } = post;
 
           if (post.type === MessageType.Topic) {
             const isReply = "parentId" in post ? true : false;
@@ -150,7 +141,7 @@ function Topics() {
                               to={`/replies/${id}`}
                             >
                               Replies
-                              <Icon.MessageCircleMore className="h-4 w-4 ml-1.5 text-muted-foreground" />
+                              <IconMessageCircleMore className="h-4 w-4 ml-1.5 text-muted-foreground" />
                             </Link>
                           </Button>
                         </div>
@@ -164,7 +155,7 @@ function Topics() {
                             variant="ghost"
                             className="h-6 w-6"
                           >
-                            <Icon.MoreHorizontal className="h-4 w-4" />
+                            <IconMoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Toggle menu</span>
                           </Button>
                         </DropdownMenuTrigger>
