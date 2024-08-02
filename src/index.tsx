@@ -4,6 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import "@/style/global.css";
 
+import { BASE_PATH } from "./App";
+
 import Replies from "@/components/views/Replies";
 import Topic from "@/components/views/Topic";
 import All from "@/components/views/All";
@@ -28,14 +30,14 @@ const router = createBrowserRouter(
         },
         {
           path: ":topic",
-          element: <Topic />, // Specific topic page
+          element: <Topic />,
         },
       ],
     },
   ],
   {
     // Note: not confirmed, but we _may_ be able to remove (GH pages)
-    basename: "/edaga",
+    basename: BASE_PATH,
   }
 );
 

@@ -4,9 +4,12 @@ import All from "@/components/views/All";
 import Topic from "@/components/views/Topic";
 import Replies from "@/components/views/Replies";
 
+export const BASE_PATH = "/edaga";
+// export const BASE_PATH = "";
+
 function App() {
   return (
-    <BrowserRouter basename={"/edaga"}>
+    <BrowserRouter basename={BASE_PATH}>
       {/* Hardcoded to make react-router-dom work with Github Pages */}
       <Routes>
         <Route index element={<All />} />

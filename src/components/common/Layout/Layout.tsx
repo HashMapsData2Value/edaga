@@ -21,6 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useLocation, useNavigate } from "react-router-dom";
+import { BASE_PATH } from "@/App";
 
 export interface LayoutProps {
   children?: string | ReactNode;
@@ -36,7 +37,7 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
   const NAVIGATION = [
     {
       label: "Home",
-      link: "/edaga",
+      link: `${BASE_PATH}/`,
       icon: <IconHome className="h-5 w-5" />,
       selected:
         !location.pathname.includes("topics") &&
@@ -44,7 +45,7 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
     },
     {
       label: "Topics",
-      link: "/edaga/topics",
+      link: `${BASE_PATH}/topics`,
       icon: <IconLibraryBig className="h-5 w-5" />,
       selected: location.pathname.includes("topics"),
     },
