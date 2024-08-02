@@ -4,12 +4,10 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import "@/style/global.css";
 
-// import App from "./App";
-
 import Replies from "@/components/views/Replies";
 import Topic from "@/components/views/Topic";
 import All from "@/components/views/All";
-import Topics from "./components/views/Topics";
+import Topics from "@/components/views/Topics";
 
 const router = createBrowserRouter(
   [

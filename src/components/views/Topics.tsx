@@ -31,7 +31,7 @@ import {
   MoreHorizontal as IconMoreHorizontal,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Badge } from "../ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 const BREADCRUMBS = [
   { label: "Edaga", link: "#" },
