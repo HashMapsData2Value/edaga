@@ -4,8 +4,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import "@/style/global.css";
 
-import { BASE_PATH } from "./App";
-
 import Replies from "@/components/views/Replies";
 import Topic from "@/components/views/Topic";
 import All from "@/components/views/All";
@@ -22,12 +20,9 @@ const router = createBrowserRouter(
       element: <Replies />,
     },
     {
-      path: "topics",
+      path: "topics/",
+      element: <Topics />,
       children: [
-        {
-          path: "",
-          element: <Topics />,
-        },
         {
           path: ":topic",
           element: <Topic />,
@@ -36,8 +31,7 @@ const router = createBrowserRouter(
     },
   ],
   {
-    // Note: not confirmed, but we _may_ be able to remove (GH pages)
-    basename: BASE_PATH,
+    basename: "",
   }
 );
 

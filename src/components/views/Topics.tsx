@@ -32,11 +32,10 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { BASE_PATH } from "@/App";
 
 const BREADCRUMBS = [
-  { label: "Edaga", link: "#" },
-  { label: "Topics", link: `${BASE_PATH}/topics/` },
+  { label: "Edaga", link: "/" },
+  { label: "Topics", link: `/topics/` },
 ];
 
 function Topics() {
