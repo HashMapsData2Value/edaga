@@ -33,8 +33,8 @@ import {
 import { Link } from "react-router-dom";
 
 const BREADCRUMBS = [
-  { label: "Edaga", link: "#" },
-  { label: "Home", link: "#" },
+  { label: "Edaga", link: "/" },
+  { label: "Home", link: "/" },
 ];
 
 function All() {

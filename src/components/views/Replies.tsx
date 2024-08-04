@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal as IconMoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
-import { BASE_PATH } from "@/App";
 
 function Replies() {
   const { originalTxId } = useParams<{ originalTxId: string }>();
@@ -79,9 +78,9 @@ function Replies() {
   };
 
   const BREADCRUMBS = [
-    { label: "Edaga", link: "#" },
-    { label: "Home", link: `${BASE_PATH}` },
-    { label: "Replies", link: `${BASE_PATH}/replies/${originalTxId}` },
+    { label: "Edaga", link: "/" },
+    { label: "Home", link: `/` },
+    { label: "Replies", link: `/replies/${originalTxId}` },
   ];
 
   if (!processedMessage) return;
