@@ -65,7 +65,7 @@ function Replies() {
     for (let i = 0; i < replyTypes.length; i++) {
       const prefix = btoa(replyTypes[i] + originalTxId);
       const response = await fetch(
-        `https://testnet-idx.algonode.cloud/v2/accounts/K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI/transactions?note-prefix=${prefix}`
+        `https://testnet-idx.algonode.cloud/v2/accounts/K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI/transactions?tx-type=pay&note-prefix=${prefix}`
       );
       const data = await response.json();
       if (data.transactions.length > 0) {

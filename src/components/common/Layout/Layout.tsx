@@ -1,4 +1,5 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import SidebarNavigation from "@/components/common/SidebarNavigation";
 import {
@@ -7,11 +8,22 @@ import {
   Info as IconInfo,
   Store as IconStore,
   ChevronLeft as IconChevronLeft,
+  RadioTower as IconRadioTower,
 } from "lucide-react";
 
 import MainHeader from "@/components/common/MainHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import {
   Card,
@@ -20,7 +32,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useLocation, useNavigate } from "react-router-dom";
+
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  type BroadcastChannel,
+  BroadcastChannels,
+} from "@/data/broadcast-channel";
+import { shortenedAccountBase32 } from "@/utils";
+import { useApplicationState } from "@/store";
 
 export interface LayoutProps {
   children?: string | ReactNode;
@@ -30,8 +50,6 @@ export interface LayoutProps {
 const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => console.log("LOCATION", location), [location]);
 
   const NAVIGATION = [
     {
@@ -83,6 +101,26 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
     return currentPath ? pathToLabelMap[currentPath] : defaultLabel;
   };
 
+  const [openBroadcastAccountAlert, setOpenBroadcastAccountAlert] =
+    useState(false);
+
+  const { broadcastChannel, setBroadcastChannel } = useApplicationState();
+  const handleChannelChange = (newValue: string) => {
+    const selectedChannel = BroadcastChannels.find(
+      (channel) =>
+        `${channel.owner}-${channel.address}-${channel.network.environment}` ===
+        newValue
+    );
+
+    if (selectedChannel) {
+      setBroadcastChannel(selectedChannel);
+    }
+  };
+
+  useEffect(() => {
+    console.log("broadcastChannel", broadcastChannel);
+  }, [broadcastChannel]);
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <SidebarNavigation
@@ -101,6 +139,7 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
           }
           navigationOptions={NAVIGATION}
           breadcrumbOptions={breadcrumbOptions}
+          setOpenBroadcastAccountAlert={setOpenBroadcastAccountAlert}
         />
 
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
@@ -163,6 +202,88 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
             </div>
           </div>
         </main>
+
+        {/* Alerts and Modals */}
+        <AlertDialog
+          open={openBroadcastAccountAlert}
+          onOpenChange={setOpenBroadcastAccountAlert}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Select Broadcast Account</AlertDialogTitle>
+              <AlertDialogDescription className="pb-4">
+                A broadcast account is an account where messages are sent to on
+                Edaga.
+              </AlertDialogDescription>
+
+              <RadioGroup
+                defaultValue={`${broadcastChannel.owner}-${broadcastChannel.address}-${broadcastChannel.network.environment}`}
+                onValueChange={handleChannelChange}
+              >
+                {BroadcastChannels.map((account: BroadcastChannel) => {
+                  const { name, address, owner, description, network } =
+                    account;
+                  return (
+                    <Label
+                      key={address}
+                      htmlFor={`${owner}-${address}-${network.environment}`}
+                      className="flex items-center space-x-4 rounded-md border p-6"
+                    >
+                      <IconRadioTower
+                        className="text-muted-foreground"
+                        size={30}
+                      />
+                      <div className="flex-1 space-y-1 pl-2">
+                        <p className="text-md font-medium leading-none">
+                          {name}
+                        </p>
+                        <p className="text-sm font-light text-muted-foreground">
+                          {description}
+                        </p>
+                        <p className="text-xs font-light text-muted-foreground">
+                          {shortenedAccountBase32(address)}
+                        </p>
+                      </div>
+                      <RadioGroupItem
+                        className="w-[20px] h-[20px]"
+                        value={`${owner}-${address}-${network.environment}`}
+                        id={`${owner}-${address}-${network.environment}`}
+                      />
+                    </Label>
+                  );
+                })}
+              </RadioGroup>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => setOpenBroadcastAccountAlert(false)}
+              >
+                Switch
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* <DropdownMenuItem>
+            <div className="relative">
+              <Select>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Broadcast Account" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BroadcastAccounts.map((account: BroadcastAccount) => {
+                    const { address, owner } = account;
+                    return (
+                      <SelectItem value={`${owner}-${address}-${address}`}>
+                        {owner} {shortenedAccountBase32(address)}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          </DropdownMenuItem> */}
       </div>
     </div>
   );

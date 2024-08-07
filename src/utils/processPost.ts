@@ -43,7 +43,6 @@ const decodeUint8ArrayToString = (uint8Array: Uint8Array): string => {
 };
 
 export const processMessage = (txn: TxnProps): Message => {
-  // const parseNoteField = atob(txn.note);
   const parseNoteField = decodeBase64ToUint8Array(txn.note);
   const decodeNoteField = decodeUint8ArrayToString(parseNoteField);
   const parsedNoteArray = decodeNoteField.split(";");
