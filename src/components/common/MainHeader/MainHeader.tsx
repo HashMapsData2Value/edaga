@@ -3,7 +3,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -15,11 +14,24 @@ import {
   Sun,
 } from "lucide-react";
 
-import { Dispatch, ReactNode, SetStateAction } from "react";
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import MainNavigation, {
   type MainNavigationItemProps,
 } from "@/components/app/MainNavigation";
 import Breadcrumb from "@/components/common/Breadcrumb";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { useTheme } from "@/ThemeProvider";
 
@@ -38,7 +50,22 @@ const MainHeader = ({
   breadcrumbOptions,
   setOpenBroadcastAccountAlert,
 }: MainHeaderProps) => {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const [currentThemeIcon, setCurrentThemeIcon] = useState(
+    <Sun className="transition-all" />
+  );
+
+  useEffect(() => {
+    const systemDarkMode =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    if (theme === "dark" || (theme === "system" && systemDarkMode)) {
+      setCurrentThemeIcon(<Moon className="transition-all" />);
+    } else {
+      setCurrentThemeIcon(<Sun className="transition-all" />);
+    }
+  }, [theme]);
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
@@ -64,8 +91,8 @@ const MainHeader = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator /> */}
           <DropdownMenuItem>Connect</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -75,26 +102,21 @@ const MainHeader = ({
             Broadcast Account
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                  <span className="sr-only">Toggle theme</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
-                  Light
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
-                  Dark
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
-                  System
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Select
+              onValueChange={(value) => {
+                setTheme(value as "light" | "dark" | "system");
+              }}
+            >
+              <SelectTrigger className="w-[160px] flex items-center space-x-2">
+                {currentThemeIcon}
+                <SelectValue placeholder="Theme" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="light">Light</SelectItem>
+                <SelectItem value="dark">Dark</SelectItem>
+                <SelectItem value="system">System</SelectItem>
+              </SelectContent>
+            </Select>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
