@@ -1,4 +1,10 @@
 import { type TxnProps } from "@/types/index";
+import { useApplicationState } from "@/store";
+
+// TODO - Use message schema files
+export const MessageFormat = {
+  STANDARDS: ["ARC00-0"],
+};
 
 export enum MessageType {
   All = "a",
@@ -15,7 +21,10 @@ export interface MessageReturn {
   fee: number;
   nickname: string;
   type: MessageType;
-  message?: string;
+  message: {
+    raw: string;
+    moderated?: string; // TODO - Move moderated content
+  };
   timestamp: number;
   parentId?: string;
   topic?: string;
@@ -43,11 +52,19 @@ const decodeUint8ArrayToString = (uint8Array: Uint8Array): string => {
 };
 
 export const processMessage = (txn: TxnProps): Message => {
+  const { broadcastChannel } = useApplicationState.getState();
+
+  // Validate the receiver *is* the current broadcast channel
+  if (txn["payment-transaction"].receiver !== broadcastChannel.address) {
+    return { error: "Transaction receiver does not match broadcast channel" };
+  }
+
   const parseNoteField = decodeBase64ToUint8Array(txn.note);
   const decodeNoteField = decodeUint8ArrayToString(parseNoteField);
   const parsedNoteArray = decodeNoteField.split(";");
 
-  if (parsedNoteArray[0] !== "ARC00-0")
+  // TODO - Consider formats of future standards
+  if (parsedNoteArray[0] !== MessageFormat.STANDARDS[0])
     return { error: "Invalid message format" };
 
   const msgType: MessageType = parsedNoteArray[1] as MessageType;
@@ -60,7 +77,9 @@ export const processMessage = (txn: TxnProps): Message => {
       fee: txn.fee,
       nickname: parsedNoteArray[3] || "",
       type: MessageType.All,
-      message: parsedNoteArray[4] || "",
+      message: {
+        raw: parsedNoteArray[4] || "",
+      },
       timestamp: txn["round-time"],
       debug: {
         parsedNoteArray,
@@ -75,7 +94,9 @@ export const processMessage = (txn: TxnProps): Message => {
       nickname: parsedNoteArray[3] || "",
       type: MessageType.Topic,
       topic: parsedNoteArray[2] || "",
-      message: parsedNoteArray[4] || "",
+      message: {
+        raw: parsedNoteArray[4] || "",
+      },
       timestamp: txn["round-time"],
       debug: {
         parsedNoteArray,
@@ -90,13 +111,16 @@ export const processMessage = (txn: TxnProps): Message => {
       nickname: parsedNoteArray[3] || "",
       type: MessageType.Reply,
       parentId: parsedNoteArray[2] || "",
-      message: parsedNoteArray[4] || "",
+      message: {
+        raw: parsedNoteArray[4] || "",
+      },
       timestamp: txn["round-time"],
       debug: {
         parsedNoteArray,
         txn,
       },
     }),
+    // TODO - Refactor into actual likes
     [MessageType.Like]: (): MessageReturn => ({
       sender: txn.sender,
       id: txn.id,
@@ -106,12 +130,13 @@ export const processMessage = (txn: TxnProps): Message => {
       type: MessageType.Like,
       parentId: parsedNoteArray[2] || "",
       timestamp: txn["round-time"],
-      message: "👍", // TODO - Refactor into actual likes
+      message: { raw: "👍" },
       debug: {
         parsedNoteArray,
         txn,
       },
     }),
+    // TODO - Refactor into actual dislikes
     [MessageType.Dislike]: (): MessageReturn => ({
       sender: txn.sender,
       id: txn.id,
@@ -121,7 +146,7 @@ export const processMessage = (txn: TxnProps): Message => {
       type: MessageType.Dislike,
       parentId: parsedNoteArray[2] || "",
       timestamp: txn["round-time"],
-      message: "👎", // TODO - Refactor into actual dislikes
+      message: { raw: "👎" },
       debug: {
         parsedNoteArray,
         txn,

@@ -15,13 +15,14 @@ const senderAccount = algosdk.mnemonicToSecretKey(senderMnemonic);
 
 // TODO - Change to Edaga receiver account address
 const receiverAddress =
-  "K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI";
+  "EDAGATRNROXUSQELAWC3LGKYFNPD6HGJ23OSF7UJJVRLUF4FM7HN53SJS4";
+  // "K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI";
 // const receiverAddress = senderAddress;
 
 const amount = 0;
 
 // const note = new Uint8Array(Buffer.from("ARC00-0;a;;LeslieOA;Hello humans 👋🏾"));
-const note = new Uint8Array(Buffer.from("ARC00-0;r;5R42AR2X3X7W2EJPPAP4UOZDYLVAZGRZG6PTJ2E4EJD4NIQPQRSA;LeslieOA;...but what if I'm a robot? 🤖"));
+const note = new Uint8Array(Buffer.from("ARC00-0;r;YUTVKJA5JQ4X3KTQE64G6K47L6UP3BX6X6MEYG3QGORZSJF74X6Q;Disrespectful;FUCKING. BASTARD."));
 
 const sendTransaction = async () => {
   try {

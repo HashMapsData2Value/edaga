@@ -61,9 +61,9 @@ const MainHeader = ({
       window.matchMedia("(prefers-color-scheme: dark)").matches;
 
     if (theme === "dark" || (theme === "system" && systemDarkMode)) {
-      setCurrentThemeIcon(<Moon className="transition-all" />);
+      setCurrentThemeIcon(<Moon className="transition-all h-4 w-4" />);
     } else {
-      setCurrentThemeIcon(<Sun className="transition-all" />);
+      setCurrentThemeIcon(<Sun className="transition-all h-4 w-4" />);
     }
   }, [theme]);
 
@@ -99,19 +99,20 @@ const MainHeader = ({
             title="Set Broadcast Account"
             onClick={() => setOpenBroadcastAccountAlert(true)}
           >
-            Broadcast Account
+            Broadcast Channel
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={(evt) => evt.stopPropagation()}>
             <Select
+              value={theme}
               onValueChange={(value) => {
                 setTheme(value as "light" | "dark" | "system");
               }}
             >
-              <SelectTrigger className="w-[160px] flex items-center space-x-2">
+              <SelectTrigger className="w-[160px] flex items-center pt-0 pb-0 space-x-2">
                 {currentThemeIcon}
                 <SelectValue placeholder="Theme" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="p-0 m-0">
                 <SelectItem value="light">Light</SelectItem>
                 <SelectItem value="dark">Dark</SelectItem>
                 <SelectItem value="system">System</SelectItem>
