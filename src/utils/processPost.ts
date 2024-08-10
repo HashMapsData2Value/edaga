@@ -23,7 +23,7 @@ export interface MessageReturn {
   type: MessageType;
   message: {
     raw: string;
-    moderated?: string; // TODO - Move moderated content
+    // moderated?: string; // TODO - Move moderated content
   };
   timestamp: number;
   parentId?: string;
@@ -55,8 +55,14 @@ export const processMessage = (txn: TxnProps): Message => {
   const { broadcastChannel } = useApplicationState.getState();
 
   // Validate the receiver *is* the current broadcast channel
-  if (txn["payment-transaction"].receiver !== broadcastChannel.address) {
-    return { error: "Transaction receiver does not match broadcast channel" };
+  if (
+    !txn["payment-transaction"] ||
+    txn["payment-transaction"].receiver !== broadcastChannel.address
+  ) {
+    return {
+      error:
+        "Transaction receiver does not match Broadcast Channel or transaction type is non payment type",
+    };
   }
 
   const parseNoteField = decodeBase64ToUint8Array(txn.note);

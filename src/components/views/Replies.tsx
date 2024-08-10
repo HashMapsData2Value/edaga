@@ -54,7 +54,7 @@ function Replies() {
           `https://testnet-idx.algonode.cloud/v2/accounts/${broadcastChannel.address}/transactions?tx-type=pay&note-prefix=${prefix}`
         );
         const data = await response.json();
-        if (data.transactions.length > 0) {
+        if (data.transactions.length >= 1) {
           repliesAll.push(...data.transactions);
         }
       }

@@ -66,6 +66,8 @@ function All() {
             const { sender, id, block, nickname, message, timestamp, fee } =
               post;
 
+            if (!("raw" in message)) return;
+
             const formatMessage = moderation
               ? censorProfanity(message.raw)
               : message.raw;
@@ -119,7 +121,7 @@ function All() {
                                 <CardDescription>
                                   <small>Replying to:</small>
                                 </CardDescription>
-                                {
+                                {/* {
                                   (
                                     processMessage(
                                       transactions.find(
@@ -127,7 +129,26 @@ function All() {
                                       ) || ({} as TxnProps)
                                     ) as MessageReturn
                                   ).message.raw
-                                }
+                                } */}
+                                {censorProfanity(
+                                  (() => {
+                                    const parentTxn = transactions.find(
+                                      (txn) => txn.id === post.parentId
+                                    );
+                                    if (!parentTxn) return "";
+
+                                    const parentPost =
+                                      processMessage(parentTxn);
+                                    if (
+                                      !parentPost ||
+                                      "error" in parentPost ||
+                                      !("raw" in parentPost.message)
+                                    )
+                                      return "";
+
+                                    return parentPost.message.raw;
+                                  })()
+                                )}
                               </blockquote>
                             </Link>
                           )}

@@ -62,30 +62,31 @@ function Topics() {
     });
   }, [broadcastChannel]);
 
-  // useEffect(() => {
-  //   getTxns(broadcastChannel.address).then((transactions) => {
-  //     const filteredTransactions = transactions.filter((txn: TxnProps) => {
-  //       const post = processMessage(txn);
-  //       if ("type" in post) return post.type === MessageType.Topic;
-  //       return false;
-  //     });
-  //     setTransactions(filteredTransactions);
-  //   });
-  // }, [broadcastChannel]);
-
   return (
     <Layout breadcrumbOptions={BREADCRUMBS}>
       <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-        {transactions && transactions.length ? (
+        {transactions && transactions.length >= 1 ? (
           transactions.map((tx: TxnProps) => {
             const post = processMessage(tx) as MessageReturn;
 
-            const { sender, id, block, nickname, message, timestamp, fee } =
-              post;
+            const {
+              sender,
+              id,
+              block,
+              nickname,
+              message,
+              timestamp,
+              fee,
+              topic,
+            } = post;
 
             const formatMessage = moderation
               ? censorProfanity(message.raw)
               : message.raw;
+
+            const formatTopicName = moderation
+              ? censorProfanity(topic!)
+              : topic;
 
             if (post.type === MessageType.Topic) {
               const isReply = "parentId" in post ? true : false;
@@ -109,9 +110,7 @@ function Topics() {
                             {shortenedAccountBase32(sender)}
                           </small>
                         </div>
-                        {post.topic && (
-                          <Badge className="ml-auto">{post.topic}</Badge>
-                        )}
+                        <Badge className="ml-auto">{formatTopicName}</Badge>
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-6 pb-10">

@@ -123,7 +123,10 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
 
     if (selectedChannel) {
       setBroadcastChannel(selectedChannel);
+      navigate("/");
     }
+
+    setOpenBroadcastAccountAlert(false);
   };
 
   useEffect(() => {
@@ -205,7 +208,10 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
                                 onCheckedChange={handleModerationToggle}
                               />
                             </div>
-                            <p className="text-sm text-muted-foreground" title="Only posts in English currently supported ">
+                            <p
+                              className="text-sm text-muted-foreground"
+                              title="Only posts in English currently supported "
+                            >
                               Hide potentially offensive words in posts
                             </p>
                           </div>
@@ -329,26 +335,6 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
-        {/* <DropdownMenuItem>
-            <div className="relative">
-              <Select>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Broadcast Account" />
-                </SelectTrigger>
-                <SelectContent>
-                  {BroadcastAccounts.map((account: BroadcastAccount) => {
-                    const { address, owner } = account;
-                    return (
-                      <SelectItem value={`${owner}-${address}-${address}`}>
-                        {owner} {shortenedAccountBase32(address)}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
-          </DropdownMenuItem> */}
       </div>
     </div>
   );

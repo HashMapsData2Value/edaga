@@ -52,7 +52,7 @@ function All() {
   return (
     <Layout breadcrumbOptions={BREADCRUMBS}>
       <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-        {transactions && transactions.length ? (
+        {transactions && transactions.length >= 1 ? (
           transactions.map((tx: TxnProps) => {
             const post = processMessage(tx) as MessageReturn;
 
