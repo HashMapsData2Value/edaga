@@ -121,34 +121,26 @@ function All() {
                                 <CardDescription>
                                   <small>Replying to:</small>
                                 </CardDescription>
-                                {/* {
-                                  (
-                                    processMessage(
-                                      transactions.find(
-                                        (txn) => txn.id === post.parentId
-                                      ) || ({} as TxnProps)
-                                    ) as MessageReturn
-                                  ).message.raw
-                                } */}
-                                {censorProfanity(
-                                  (() => {
-                                    const parentTxn = transactions.find(
-                                      (txn) => txn.id === post.parentId
-                                    );
-                                    if (!parentTxn) return "";
+                                {(() => {
+                                  const parentTxn = transactions.find(
+                                    (txn) => txn.id === post.parentId
+                                  );
+                                  if (!parentTxn) return "";
 
-                                    const parentPost =
-                                      processMessage(parentTxn);
-                                    if (
-                                      !parentPost ||
-                                      "error" in parentPost ||
-                                      !("raw" in parentPost.message)
-                                    )
-                                      return "";
+                                  const parentPost = processMessage(parentTxn);
+                                  if (
+                                    !parentPost ||
+                                    "error" in parentPost ||
+                                    !("raw" in parentPost.message)
+                                  )
+                                    return "";
 
-                                    return parentPost.message.raw;
-                                  })()
-                                )}
+                                  const rawMessage = parentPost.message.raw;
+
+                                  return moderation
+                                    ? censorProfanity(rawMessage)
+                                    : rawMessage;
+                                })()}
                               </blockquote>
                             </Link>
                           )}
