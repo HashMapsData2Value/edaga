@@ -13,8 +13,8 @@ export const algosToMicroalgos = (algo: number) => {
   return amountInMicroAlgos;
 };
 
-export const getTxns = async () => {
-  const url = `https://testnet-idx.algonode.cloud/v2/accounts/K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI/transactions?note-prefix=QVJDMDAtMA==`;
+export const getTxns = async (broadcastChannel: string) => {
+  const url = `https://testnet-idx.algonode.cloud/v2/accounts/${broadcastChannel}/transactions?note-prefix=QVJDMDAtMA==`;
   const response = await fetch(url);
   const data = await response.json();
   return data.transactions;

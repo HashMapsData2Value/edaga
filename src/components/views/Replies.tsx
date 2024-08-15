@@ -15,17 +15,23 @@ import {
 } from "@/components/ui/card";
 import { MessageReturn, processMessage } from "@/utils/processPost";
 import { Txn, TxnProps } from "@/types";
-import { shortenedAccountBase32 } from "@/utils";
+import { microalgosToAlgos, shortenedAccountBase32 } from "@/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal as IconMoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useApplicationState } from "@/store";
+import { censorProfanity } from "@/utils/moderation";
 
+// TODO - Redirect to homepage if reply is not on current broadcast channel
 function Replies() {
+  const { broadcastChannel, moderation } = useApplicationState();
+
   const { originalTxId } = useParams<{ originalTxId: string }>();
 
   const [originalTx, setOriginalTx] = useState<TxnProps>();
@@ -38,9 +44,27 @@ function Replies() {
   }, [originalTxId]);
 
   useEffect(() => {
+    const getReplies = async (originalTxId: string) => {
+      const repliesAll: TxnProps[] = [];
+
+      const replyTypes = ["ARC00-0;r;", "ARC00-0;l;", "ARC00-0;d;"];
+      for (let i = 0; i < replyTypes.length; i++) {
+        const prefix = btoa(replyTypes[i] + originalTxId);
+        const response = await fetch(
+          `https://testnet-idx.algonode.cloud/v2/accounts/${broadcastChannel.address}/transactions?tx-type=pay&note-prefix=${prefix}`
+        );
+        const data = await response.json();
+        if (data.transactions.length >= 1) {
+          repliesAll.push(...data.transactions);
+        }
+      }
+      setReplies(
+        repliesAll.sort((a, b) => a["confirmed-round"] - b["confirmed-round"])
+      );
+    };
     if (originalTxId === undefined) return;
     getReplies(originalTxId);
-  }, [originalTxId]);
+  }, [broadcastChannel.address, originalTxId]);
 
   const getOriginalTx = async (originalTxId: string) => {
     const originalTxUrl = `https://testnet-idx.algonode.cloud/v2/transactions/${originalTxId}`;
@@ -51,31 +75,9 @@ function Replies() {
   };
 
   useEffect(() => {
-    if (originalTx) {
-      console.log("Original Transaction Data");
-      console.log(JSON.stringify(originalTx, null, 2));
+    if (originalTx)
       setProcessedMessage(processMessage(originalTx) as MessageReturn);
-    }
   }, [originalTx]);
-
-  const getReplies = async (originalTxId: string) => {
-    const repliesAll: TxnProps[] = [];
-
-    const replyTypes = ["ARC00-0;r;", "ARC00-0;l;", "ARC00-0;d;"];
-    for (let i = 0; i < replyTypes.length; i++) {
-      const prefix = btoa(replyTypes[i] + originalTxId);
-      const response = await fetch(
-        `https://testnet-idx.algonode.cloud/v2/accounts/K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI/transactions?note-prefix=${prefix}`
-      );
-      const data = await response.json();
-      if (data.transactions.length > 0) {
-        repliesAll.push(data.transactions[0]);
-      }
-    }
-    setReplies(
-      repliesAll.sort((a, b) => a["confirmed-round"] - b["confirmed-round"])
-    );
-  };
 
   const BREADCRUMBS = [
     { label: "Edaga", link: "/" },
@@ -85,10 +87,14 @@ function Replies() {
 
   if (!processedMessage) return;
 
+  const formatMessage = moderation
+    ? censorProfanity(processedMessage.message.raw)
+    : processedMessage.message.raw;
+
   return (
     <>
       <Layout breadcrumbOptions={BREADCRUMBS}>
-        <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
+        <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8 pb-12">
           <Card>
             <CardHeader>
               <CardTitle>
@@ -105,7 +111,7 @@ function Replies() {
               <div className="grid gap-6">
                 <div className="grid gap-3">
                   <h4 className="scroll-m-20 text-xl font-regular tracking-tight">
-                    {processedMessage.message}
+                    {formatMessage}
                   </h4>
                 </div>
               </div>
@@ -164,10 +170,15 @@ function Replies() {
                       View Block
                     </Link>
                   </DropdownMenuItem>
-                  {/* <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-foreground-muted">
-                    {`Fee: ${microalgosToAlgos(processedMessage.fee)}`}
-                  </DropdownMenuItem> */}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-s text-muted-foreground"
+                    title={`${microalgosToAlgos(
+                      processedMessage.fee
+                    )} was paid to post this message`}
+                  >
+                    {`${microalgosToAlgos(processedMessage.fee)}`}
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </CardFooter>
@@ -175,7 +186,12 @@ function Replies() {
 
           {replies.map((tx: TxnProps) => {
             const post = processMessage(tx) as MessageReturn;
-            const { sender, id, block, nickname, message, timestamp } = post;
+            const { sender, id, block, nickname, message, timestamp, fee } =
+              post;
+
+            const formatMessage = moderation
+              ? censorProfanity(message.raw)
+              : message.raw;
 
             return (
               <Fragment key={id}>
@@ -195,7 +211,7 @@ function Replies() {
                     <div className="grid gap-6">
                       <div className="grid gap-3">
                         <h4 className="scroll-m-20 text-xl font-regular tracking-tight">
-                          {message}
+                          {formatMessage}
                         </h4>
                       </div>
                     </div>
@@ -254,6 +270,15 @@ function Replies() {
                             >
                               View Block
                             </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-s text-muted-foreground"
+                            title={`${microalgosToAlgos(
+                              fee
+                            )} was paid to post this message`}
+                          >
+                            {`${microalgosToAlgos(fee)}`}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

@@ -1,7 +1,7 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 
-import { getTxns } from "@/utils";
+import { getTxns, microalgosToAlgos } from "@/utils";
 import Layout from "@/components/common/Layout";
 import { Button } from "@/components/ui/button";
 
@@ -32,6 +32,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { useApplicationState } from "@/store";
+import { censorProfanity } from "@/utils/moderation";
 
 const BREADCRUMBS = [
   { label: "Edaga", link: "/" },
@@ -39,71 +41,106 @@ const BREADCRUMBS = [
 ];
 
 function Topics() {
+  const { broadcastChannel, moderation } = useApplicationState();
+
   const [transactions, setTransactions] = useState<TxnProps[]>([]);
 
   useEffect(() => {
-    getTxns().then((transactions) => {
-      setTransactions(transactions);
+    getTxns(broadcastChannel.address).then((transactions) => {
+      const filteredTransactions = transactions.filter((txn: TxnProps) => {
+        const post = processMessage(txn);
+        if ("type" in post)
+          return (
+            post.type === MessageType.Topic ||
+            MessageType.Reply ||
+            MessageType.Like ||
+            MessageType.Dislike
+          );
+        return false;
+      });
+      setTransactions(filteredTransactions);
     });
-  }, []);
+  }, [broadcastChannel]);
 
   return (
     <Layout breadcrumbOptions={BREADCRUMBS}>
       <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-        {transactions.map((tx: TxnProps) => {
-          const post = processMessage(tx) as MessageReturn;
+        {transactions && transactions.length >= 1 ? (
+          transactions.map((tx: TxnProps) => {
+            const post = processMessage(tx) as MessageReturn;
 
-          const { sender, id, block, nickname, message, timestamp } = post;
+            const {
+              sender,
+              id,
+              block,
+              nickname,
+              message,
+              timestamp,
+              fee,
+              topic,
+            } = post;
 
-          if (post.type === MessageType.Topic) {
-            const isReply = "parentId" in post ? true : false;
+            const formatMessage = moderation
+              ? censorProfanity(message.raw)
+              : message.raw;
 
-            return (
-              <Fragment key={id}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <div>
-                        {nickname}&nbsp;&nbsp;
-                        <small
-                          className="text-s font-light text-muted-foreground"
-                          title={sender}
-                        >
-                          {shortenedAccountBase32(sender)}
-                        </small>
+            const formatTopicName = moderation
+              ? censorProfanity(topic!)
+              : topic;
+
+            if (post.type === MessageType.Topic) {
+              const isReply = "parentId" in post ? true : false;
+
+              const replies = transactions.filter((txn) => {
+                const replyPost = processMessage(txn);
+                return !("error" in replyPost) && replyPost.parentId === id;
+              });
+
+              return (
+                <div key={id} className="pb-12">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <div>
+                          {nickname}&nbsp;&nbsp;
+                          <small
+                            className="text-s font-light text-muted-foreground"
+                            title={sender}
+                          >
+                            {shortenedAccountBase32(sender)}
+                          </small>
+                        </div>
+                        <Badge className="ml-auto">{formatTopicName}</Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 pb-10">
+                      <div className="grid gap-6">
+                        <div className="grid gap-3">
+                          <h4 className="scroll-m-20 text-xl font-regular tracking-tight">
+                            {formatMessage}
+                          </h4>
+                          {isReply && (
+                            <Link to={`replies/${post.parentId}`}>
+                              <blockquote className="mt-6 pl-6 border-l-2 text-muted-foreground">
+                                <CardDescription>
+                                  <small>Replying to:</small>
+                                </CardDescription>
+
+                                {censorProfanity(
+                                  (
+                                    processMessage(
+                                      transactions.find(
+                                        (txn) => txn.id === post.parentId
+                                      ) || ({} as TxnProps)
+                                    ) as MessageReturn
+                                  ).message.raw
+                                )}
+                              </blockquote>
+                            </Link>
+                          )}
+                        </div>
                       </div>
-                      {post.topic && (
-                        <Badge className="ml-auto">{post.topic}</Badge>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 pb-10">
-                    <div className="grid gap-6">
-                      <div className="grid gap-3">
-                        <h4 className="scroll-m-20 text-xl font-regular tracking-tight">
-                          {message}
-                        </h4>
-                        {isReply && (
-                          <Link to={`replies/${post.parentId}`}>
-                            <blockquote className="mt-6 pl-6 border-l-2 text-muted-foreground">
-                              <CardDescription>
-                                <small>Replying to:</small>
-                              </CardDescription>
-                              {
-                                (
-                                  processMessage(
-                                    transactions.find(
-                                      (txn) => txn.id === post.parentId
-                                    ) || ({} as TxnProps)
-                                  ) as MessageReturn
-                                ).message
-                              }
-                            </blockquote>
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                    {/* <div
+                      {/* <div
                       className="grid gap-3 mt-6"
                       style={{
                         width: 500,
@@ -116,81 +153,94 @@ function Topics() {
                         {JSON.stringify(post, null, 2)}
                       </pre>
                     </div> */}
-                  </CardContent>
-                  <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-3">
-                    <div className="text-xs text-muted-foreground">
-                      <time dateTime="2023-11-23">
-                        {format(
-                          new Date(timestamp * 1000),
-                          " hh:mm:ss - do MMMM yyyy"
+                    </CardContent>
+                    <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-3">
+                      <div className="text-xs text-muted-foreground">
+                        <time dateTime="2023-11-23">
+                          {format(
+                            new Date(timestamp * 1000),
+                            " hh:mm:ss - do MMMM yyyy"
+                          )}
+                        </time>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        {replies.length > 0 && (
+                          <div className="text-xs text-muted-foreground">
+                            <Button
+                              aria-haspopup="true"
+                              size="sm"
+                              variant="ghost"
+                              className="h-6"
+                            >
+                              <Link
+                                className="flex items-center gap-1 text-xs text-muted-foreground"
+                                to={`/replies/${id}`}
+                              >
+                                {`${replies.length} ${
+                                  replies.length > 1 ? "Replies" : "Reply"
+                                }`}
+                                <IconMessageCircleMore className="h-4 w-4 ml-1.5 text-muted-foreground" />
+                              </Link>
+                            </Button>
+                          </div>
                         )}
-                      </time>
-                    </div>
 
-                    <div className="flex items-center gap-4">
-                      {!isReply && (
-                        <div className="text-xs text-muted-foreground">
-                          <Button
-                            aria-haspopup="true"
-                            size="sm"
-                            variant="ghost"
-                            className="h-6"
-                          >
-                            <Link
-                              className="flex items-center gap-1 text-xs text-muted-foreground"
-                              to={`/replies/${id}`}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              aria-haspopup="true"
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6"
                             >
-                              Replies
-                              <IconMessageCircleMore className="h-4 w-4 ml-1.5 text-muted-foreground" />
-                            </Link>
-                          </Button>
-                        </div>
-                      )}
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                            className="h-6 w-6"
-                          >
-                            <IconMoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Link
-                              to={`https://testnet.explorer.perawallet.app/tx/${id}/`}
-                              target="_blank"
-                              title="View transaction on Pera Explorer"
+                              <IconMoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Link
+                                to={`https://testnet.explorer.perawallet.app/tx/${id}/`}
+                                target="_blank"
+                                title="View transaction on Pera Explorer"
+                              >
+                                View Message ID
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Link
+                                to={`https://testnet.explorer.perawallet.app/block/${block}/`}
+                                target="_blank"
+                                title="View block on Pera Explorer"
+                              >
+                                View Block
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-s text-muted-foreground"
+                              title={`${microalgosToAlgos(
+                                fee
+                              )} was paid to post this message`}
                             >
-                              View Message ID
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Link
-                              to={`https://testnet.explorer.perawallet.app/block/${block}/`}
-                              target="_blank"
-                              title="View block on Pera Explorer"
-                            >
-                              View Block
-                            </Link>
-                          </DropdownMenuItem>
-                          {/* <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-foreground-muted">
-                            {`Fee: ${microalgosToAlgos(fee)}`}
-                          </DropdownMenuItem> */}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </CardFooter>
-                </Card>
-              </Fragment>
-            );
-          }
-        })}
+                              {`${microalgosToAlgos(fee)}`}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                </div>
+              );
+            }
+          })
+        ) : (
+          <>
+            <p className="text-muted-foreground pb-12">
+              There are no topics... yet.
+            </p>
+          </>
+        )}
       </div>
     </Layout>
   );

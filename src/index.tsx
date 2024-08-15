@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -8,6 +7,7 @@ import Replies from "@/components/views/Replies";
 import Topic from "@/components/views/Topic";
 import All from "@/components/views/All";
 import Topics from "@/components/views/Topics";
+import { ThemeProvider } from "@/ThemeProvider";
 
 const router = createBrowserRouter(
   [
@@ -36,7 +36,9 @@ const router = createBrowserRouter(
 );
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+  // <React.StrictMode>
+  <ThemeProvider>
     <RouterProvider router={router} />
-  </React.StrictMode>
+  </ThemeProvider>
+  // </React.StrictMode>
 );

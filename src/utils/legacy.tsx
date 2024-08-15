@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 
-export const getTxns = async () => {
+export const getTxnsLegacy = async () => {
   const url = `https://testnet-idx.algonode.cloud/v2/accounts/K22E7O64EMVMBVPUQ53VVXN2U4WCYL7XN6PHOYMNNEBSNM6RMMKJZ3OAMI/transactions?note-prefix=QVJDMDAtMA==`;
   const response = await fetch(url);
   const data = await response.json();
   return data.transactions;
 };
 
-export function getShortenedBase32(
+export function getShortenedBase32Legacy(
   input: string | null | undefined
 ): string | undefined {
   if (input === null || input === "" || input === undefined) {
@@ -16,7 +16,9 @@ export function getShortenedBase32(
   return input.slice(0, 7) + "..." + input.slice(-3);
 }
 
-export function defineBody(noteB64: string | null | undefined): JSX.Element {
+export function defineBodyLegacy(
+  noteB64: string | null | undefined
+): JSX.Element {
   if (noteB64 === null || noteB64 === "" || noteB64 === undefined) {
     return <p>Invalid note</p>;
   }
@@ -30,7 +32,7 @@ export function defineBody(noteB64: string | null | undefined): JSX.Element {
       <p>
         &#128077; {"   -->"}{" "}
         <Link to={`/replies/${targetTxId}`}>
-          {getShortenedBase32(targetTxId)}
+          {getShortenedBase32Legacy(targetTxId)}
         </Link>
       </p>
     );
@@ -42,7 +44,7 @@ export function defineBody(noteB64: string | null | undefined): JSX.Element {
       <p>
         &#128078; {"   -->"}{" "}
         <Link to={`/replies/${targetTxId}`}>
-          {getShortenedBase32(targetTxId)}
+          {getShortenedBase32Legacy(targetTxId)}
         </Link>
       </p>
     );
@@ -73,7 +75,7 @@ export function defineBody(noteB64: string | null | undefined): JSX.Element {
           <p>
             {handle} replied to{" "}
             <Link to={`/replies/${replyToTxId}`}>
-              {getShortenedBase32(replyToTxId)}
+              {getShortenedBase32Legacy(replyToTxId)}
             </Link>
             :
           </p>
@@ -182,7 +184,7 @@ export function defineAllBody(noteB64: string | null | undefined): JSX.Element {
       <p>
         &#128077; {"   -->"}{" "}
         <Link to={`/replies/${targetTxId}`}>
-          {getShortenedBase32(targetTxId)}
+          {getShortenedBase32Legacy(targetTxId)}
         </Link>
       </p>
     );
@@ -194,7 +196,7 @@ export function defineAllBody(noteB64: string | null | undefined): JSX.Element {
       <p>
         &#128078; {"   -->"}{" "}
         <Link to={`/replies/${targetTxId}`}>
-          {getShortenedBase32(targetTxId)}
+          {getShortenedBase32Legacy(targetTxId)}
         </Link>
       </p>
     );
@@ -225,7 +227,7 @@ export function defineAllBody(noteB64: string | null | undefined): JSX.Element {
           <p>
             {handle} replied to{" "}
             <Link to={`/replies/${replyToTxId}`}>
-              {getShortenedBase32(replyToTxId)}
+              {getShortenedBase32Legacy(replyToTxId)}
             </Link>
             :
           </p>
