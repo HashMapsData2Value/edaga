@@ -1,7 +1,7 @@
 import algosdk from "algosdk";
 
-export const shortenedAccountBase32 = (account: string) =>
-  `${account.slice(0, 5)}...${account.slice(-5)}`;
+export const shortenedAccountBase32 = (account: string, slice: number = 5) =>
+  `${account.slice(0, slice)}...${account.slice(-slice)}`;
 
 export const microalgosToAlgos = (fee: number) => {
   const feeInAlgos = algosdk.microalgosToAlgos(fee);

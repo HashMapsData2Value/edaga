@@ -5,13 +5,15 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import {
-  Search as IconSearch,
-  UserRound as IconUserRound,
-  Moon,
-  Sun,
+  // Search as IconSearch,
+  RadioTower as IconRadioTower,
+  Moon as IconMoon,
+  Sun as IconSun,
+  Cog as IconCog,
 } from "lucide-react";
 
 import {
@@ -34,6 +36,8 @@ import {
 } from "@/components/ui/select";
 
 import { useTheme } from "@/ThemeProvider";
+import { useWallet } from "@txnlab/use-wallet-react";
+import { shortenedAccountBase32 } from "@/utils";
 
 interface MainHeaderProps {
   title: "Edaga";
@@ -41,6 +45,7 @@ interface MainHeaderProps {
   navigationOptions: MainNavigationItemProps[];
   breadcrumbOptions: { label: string; link: string }[];
   setOpenBroadcastAccountAlert: Dispatch<SetStateAction<boolean>>;
+  setOpenWalletModal: Dispatch<SetStateAction<boolean>>;
 }
 
 const MainHeader = ({
@@ -49,10 +54,18 @@ const MainHeader = ({
   navigationOptions,
   breadcrumbOptions,
   setOpenBroadcastAccountAlert,
+  setOpenWalletModal,
 }: MainHeaderProps) => {
+  const { activeWallet, activeAccount } = useWallet();
+
+  useEffect(() => {
+    console.log("activeWallet, activeAccount");
+    console.log(activeWallet, activeAccount);
+  }, [activeWallet, activeAccount]);
+
   const { theme, setTheme } = useTheme();
   const [currentThemeIcon, setCurrentThemeIcon] = useState(
-    <Sun className="transition-all" />
+    <IconSun className="transition-all" />
   );
 
   useEffect(() => {
@@ -61,9 +74,9 @@ const MainHeader = ({
       window.matchMedia("(prefers-color-scheme: dark)").matches;
 
     if (theme === "dark" || (theme === "system" && systemDarkMode)) {
-      setCurrentThemeIcon(<Moon className="transition-all h-4 w-4" />);
+      setCurrentThemeIcon(<IconMoon className="transition-all h-4 w-4" />);
     } else {
-      setCurrentThemeIcon(<Sun className="transition-all h-4 w-4" />);
+      setCurrentThemeIcon(<IconSun className="transition-all h-4 w-4" />);
     }
   }, [theme]);
 
@@ -71,14 +84,26 @@ const MainHeader = ({
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <MainNavigation title={title} icon={icon} options={navigationOptions} />
       <Breadcrumb options={breadcrumbOptions} />
-      <div className="relative ml-auto flex-1 md:grow-0">
+      {/* <div
+        className="relative ml-auto flex-1 flex items-center md:grow-0 gap-2"
+        style={{ outline: "1px solid red" }}
+      >
         <IconSearch className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search..."
           className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
         />
-      </div>
+      </div> */}
+
+      <div
+        className="relative flex-1 gap-2"
+        // style={{ outline: "1px solid red" }}
+      />
+
+      <Button variant="outline" onClick={() => setOpenWalletModal(true)}>
+        {activeWallet ? shortenedAccountBase32(activeAccount!.address, 6) : "Connect"}
+      </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -87,18 +112,18 @@ const MainHeader = ({
             size="icon"
             className="overflow-hidden rounded-full"
           >
-            <IconUserRound className="h-5 w-5 text-muted-foreground" />
+            <IconCog className="h-5 w-5 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator /> */}
-          <DropdownMenuItem>Connect</DropdownMenuItem>
+          <DropdownMenuLabel>Settings</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             title="Set Broadcast Account"
             onClick={() => setOpenBroadcastAccountAlert(true)}
+            className="flex justify-space items-center space-x-2"
           >
+            <IconRadioTower className="w-4 h-4 mr-4" />
             Broadcast Channel
           </DropdownMenuItem>
           <DropdownMenuItem onClick={(evt) => evt.stopPropagation()}>
@@ -108,12 +133,17 @@ const MainHeader = ({
                 setTheme(value as "light" | "dark" | "system");
               }}
             >
-              <SelectTrigger className="w-[160px] flex items-center pt-0 pb-0 space-x-2">
+              <SelectTrigger
+                className="w-[160px] p-0 m-0 border-0 bg-transparent h-auto flex justify-space items-center space-x-2"
+                style={{ boxShadow: "none" }}
+              >
                 {currentThemeIcon}
                 <SelectValue placeholder="Theme" />
               </SelectTrigger>
               <SelectContent className="p-0 m-0">
-                <SelectItem value="light">Light</SelectItem>
+                <SelectItem value="light" className="flex flex-row">
+                  <span>Light</span>
+                </SelectItem>
                 <SelectItem value="dark">Dark</SelectItem>
                 <SelectItem value="system">System</SelectItem>
               </SelectContent>

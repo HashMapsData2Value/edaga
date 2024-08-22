@@ -100,12 +100,15 @@ function All() {
                   <Card>
                     <CardHeader>
                       <CardTitle>
-                        {nickname}&nbsp;&nbsp;
+                        {moderation ? censorProfanity(nickname) : nickname}
+                        &nbsp;&nbsp;
                         <small
                           className="text-s font-light text-muted-foreground"
                           title={sender}
                         >
-                          {shortenedAccountBase32(sender)}
+                          {moderation
+                            ? censorProfanity(shortenedAccountBase32(sender))
+                            : shortenedAccountBase32(sender)}
                         </small>
                       </CardTitle>
                     </CardHeader>

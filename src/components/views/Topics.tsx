@@ -102,12 +102,15 @@ function Topics() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <div>
-                          {nickname}&nbsp;&nbsp;
+                          {moderation ? censorProfanity(nickname) : nickname}
+                          &nbsp;&nbsp;
                           <small
                             className="text-s font-light text-muted-foreground"
                             title={sender}
                           >
-                            {shortenedAccountBase32(sender)}
+                            {moderation
+                              ? censorProfanity(shortenedAccountBase32(sender))
+                              : shortenedAccountBase32(sender)}
                           </small>
                         </div>
                         <Badge className="ml-auto">{formatTopicName}</Badge>
