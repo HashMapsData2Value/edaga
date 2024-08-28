@@ -1,9 +1,10 @@
 import { useWallet, Wallet } from "@txnlab/use-wallet-react";
 import Dialog from "@/components/common/Dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import SvgIcon from "@/components/common/SvgIcon";
-import { ALPHA_WALLETS } from "@/services/wallets/alpha.wallets";
+import { shortenedAccountBase32 } from "@/utils";
 
 export interface WalletProps {
   openWalletModal: boolean;
@@ -30,17 +31,43 @@ const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
       onOpenChange={setOpenWalletModal}
     >
       {activeWallet ? (
-        <div>
-          <h2>Active Wallet</h2>
-          <p>{activeWallet.metadata.name}</p>
-          <h2>Active Account</h2>
-          <p>{activeAccount?.address}</p>
-          <button onClick={() => activeWallet.disconnect()}>Disconnect</button>
-        </div>
+        <>
+          <RadioGroup defaultValue={``}>
+            <Label
+              key={activeWallet.id}
+              htmlFor={`${activeWallet.id}`}
+              // className="flex items-center space-x-4 rounded-md border p-6 pt-3 pb-3"
+              className="flex items-center space-x-4 rounded-md border p-6 pt-3 pb-3"
+            >
+              <SvgIcon
+                icon={activeWallet.metadata.icon}
+                className="activeWallet-icon opacity-85"
+                size={48}
+              />
+              <div className="flex-1 space-y-1 pl-2">
+                <p className="text-md font-medium leading-none">
+                  {activeWallet.metadata.name}
+                </p>
+                <p
+                  className="text-md font-light text-muted-foreground leading-none"
+                  title={activeAccount!.address}
+                >
+                  {shortenedAccountBase32(activeAccount!.address, 6)}
+                </p>
+              </div>
+              <Button
+                variant="secondary"
+                onClick={() => activeWallet.disconnect()}
+              >
+                Disconnect
+              </Button>
+            </Label>
+          </RadioGroup>
+        </>
       ) : (
         <RadioGroup defaultValue={``}>
           {/* <RadioGroup defaultValue={``} onValueChange={handleWalletChange}> */}
-          {[...wallets, ...ALPHA_WALLETS].map((wallet: Wallet) => {
+          {wallets.map((wallet: Wallet) => {
             return (
               <Label
                 key={wallet.id}
