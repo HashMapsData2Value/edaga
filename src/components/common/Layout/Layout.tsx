@@ -33,6 +33,7 @@ import { Label } from "@/components/ui/label";
 import { useApplicationState } from "@/store";
 import Modal from "@/components/app/Modal";
 import { useWallet } from "@txnlab/use-wallet-react";
+import Compose from "@/components/app/Compose";
 
 export interface LayoutProps {
   children?: string | ReactNode;
@@ -106,6 +107,10 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
 
   const handleModerationToggle = () => setModeration(!moderation);
 
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const openSheet = () => setIsSheetOpen(true);
+  // const closeSheet = () => setIsSheetOpen(false);
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40 pb-10">
       <SidebarNavigation
@@ -115,6 +120,8 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
         }
         options={NAVIGATION}
       />
+
+      <Compose open={isSheetOpen} onOpenChange={setIsSheetOpen} />
 
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <MainHeader
@@ -206,13 +213,12 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
                 </div>
               </div>
 
-              {activeWallet && (
-                <div className="flex ml-auto gap-2">
-                  <Button size="sm" onClick={() => alert("TODO - Soon")}>
-                    {`New ${getLocationLabel().singular}`}
-                  </Button>
-                </div>
-              )}
+              {/* {activeWallet && ( */}
+              <div className="flex ml-auto gap-2">
+                <Button size="sm" onClick={() => openSheet()}>
+                  {`New ${getLocationLabel().singular}`}
+                </Button>
+              </div>
             </div>
             <div className="grid gap-4 lg:grid-cols-3 lg:gap-8">
               {children}

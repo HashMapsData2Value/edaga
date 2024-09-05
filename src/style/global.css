@@ -70,4 +70,30 @@
   body {
     min-width: 320px;
   }
+
+  body.sheet-open {
+    overflow: hidden;
+  }
+
+  /* Ensure the overlay covers the entire viewport */
+  .sheet-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7); /* Adjust transparency as needed */
+    z-index: 9998; /* Ensure it's below the sheet content */
+  }
+
+  /* Properly position the sheet content */
+  .sheet-content {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 80vh; /* Prevent the sheet from covering too much of the viewport */
+    overflow-y: auto; /* Allow scrolling within the sheet */
+    z-index: 9999; /* Ensure it's above the overlay */
+  }
 }
