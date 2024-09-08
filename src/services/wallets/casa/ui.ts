@@ -27,6 +27,8 @@ export class CasaConnettiPrompt extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    // Bind the method to ensure 'this' refers to the class instance
+    this.handleLaunchButton = this.handleLaunchButton.bind(this);
   }
 
   connectedCallback() {
@@ -34,14 +36,13 @@ export class CasaConnettiPrompt extends HTMLElement {
       QRCode.defineCustomElements(window);
       this.render();
       this.setupCloseButton();
+      this.setupLaunchButton(); // Ensure this is called after render
 
       setTimeout(() => {
         const container = this.shadowRoot?.getElementById(
           "casa-famiglia-container"
         );
-        if (container) {
-          container.style.opacity = "1";
-        }
+        if (container) container.style.opacity = "1";
       }, 0);
 
       if (this.isMobileDevice() && this.pairingUri) {
@@ -49,10 +50,13 @@ export class CasaConnettiPrompt extends HTMLElement {
       }
 
       this.stopClickPropagation();
-
       this.animateQRCode();
       this.hasRendered = true;
     }
+  }
+
+  private isMobileDevice(): boolean {
+    return /Android|iPhone/i.test(navigator.userAgent);
   }
 
   private stopClickPropagation() {
@@ -110,8 +114,46 @@ export class CasaConnettiPrompt extends HTMLElement {
     }
   }
 
-  private isMobileDevice(): boolean {
-    return /Android|iPhone/i.test(navigator.userAgent);
+  private setupLaunchButton() {
+    const launchButton = this.shadowRoot?.querySelector(
+      "#casa-famiglia-launch-link"
+    );
+    if (launchButton) {
+      // Remove any previously attached listeners to prevent duplicates
+      launchButton.removeEventListener("click", this.handleLaunchButton);
+      // Reattach the listener with the method bound to this instance
+      launchButton.addEventListener(
+        "click",
+        this.handleLaunchButton.bind(this)
+      );
+    }
+  }
+
+  private handleLaunchButton = (event: { preventDefault: () => void }) => {
+    event.preventDefault(); // Prevent the default navigation to ensure better control
+    // Attempt to open the Casa app
+    window.location.href = `casa://${this.pairingUri}`;
+    this.updateLaunchButtonUI(); // Call this to manage UI changes after the attempt
+  };
+
+  private updateLaunchButtonUI() {
+    const launchButton = this.shadowRoot?.querySelector(
+      "#casa-famiglia-launch-link .label"
+    ) as HTMLSpanElement;
+    const loadingIndicator = this.shadowRoot?.querySelector(
+      "#casa-famiglia-launch-link .loading-indicator"
+    ) as HTMLElement;
+
+    // Timeout to check if the app is still in the foreground
+    setTimeout(() => {
+      if (document.visibilityState === "visible") {
+        launchButton.textContent = "Open in Casa";
+        loadingIndicator.style.display = "none";
+      } else {
+        launchButton.textContent = "Opening Casa...";
+        loadingIndicator.style.display = "inline";
+      }
+    }, 2000); // Adjust timing as necessary
   }
 
   animateQRCode() {

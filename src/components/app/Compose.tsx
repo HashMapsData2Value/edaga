@@ -1,3 +1,6 @@
+import { useWallet } from "@txnlab/use-wallet-react";
+import algosdk from "algosdk";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -8,18 +11,10 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "../ui/textarea";
-// import {
-//   Tooltip,
-//   TooltipContent,
-//   TooltipProvider,
-//   TooltipTrigger,
-// } from "../ui/tooltip";
-import {
-  // Paperclip as IconPaperclip,
-  // Mic as IconMic,
-  CornerDownLeft as IconCornerDownLeft,
-} from "lucide-react";
-import { useEffect } from "react";
+import { CornerDownLeft as IconCornerDownLeft } from "lucide-react";
+import { useApplicationState } from "@/store";
+import { useTransactionContext } from "@/context/TransactionContext";
+import { quotes } from "@/assets/data/quotes";
 
 interface ComposeProps {
   open: boolean;
@@ -27,6 +22,57 @@ interface ComposeProps {
 }
 
 const Compose = ({ open, onOpenChange }: ComposeProps) => {
+  const {
+    algodClient,
+    activeAddress,
+    // activeNetwork,
+    // setActiveNetwork,
+    transactionSigner,
+  } = useWallet();
+
+  const { broadcastChannel } = useApplicationState();
+  const { loadTransactions } = useTransactionContext();
+
+  const [message, setMessage] = useState("");
+
+  // const hash = crypto.randomUUID().slice(-5);
+
+  const sendMessage = async () => {
+    if (!activeAddress) throw new Error("No active account");
+
+    // Prepare message
+    const note = new Uint8Array(Buffer.from(`ARC00-0;a;;LeslieOA;${message}`));
+
+    const transactionComposer = new algosdk.AtomicTransactionComposer();
+    const suggestedParams = await algodClient.getTransactionParams().do();
+
+    const transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      from: activeAddress,
+      to: broadcastChannel.address,
+      amount: 0,
+      note,
+      suggestedParams,
+    });
+
+    transactionComposer.addTransaction({
+      txn: transaction,
+      signer: transactionSigner,
+    });
+
+    console.info("Sending message...", transaction);
+
+    const result = await transactionComposer.execute(algodClient, 4);
+
+    console.info("✅ Successfully sent transaction!", {
+      confirmedRound: result.confirmedRound,
+      txIDs: result.txIDs,
+    });
+
+    loadTransactions();
+
+    onOpenChange(false);
+  };
+
   useEffect(() => {
     if (open) {
       document.body.classList.add("sheet-open");
@@ -36,13 +82,15 @@ const Compose = ({ open, onOpenChange }: ComposeProps) => {
     return () => document.body.classList.remove("sheet-open");
   }, [open]);
 
+  const quote = useMemo(() => getDescriptionQuote(), []);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={true}>
-      <SheetContent side="bottom">
+      <SheetContent side="bottom" className="p-2 pt-4 sm:p-4 md:p-8">
         <SheetHeader className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4 pt-2 pb-6">
           <SheetTitle>New Conversation</SheetTitle>
-          <SheetDescription>
-            Make changes to your profile here. Click save when you're done.
+          <SheetDescription className="max-sm:hidden text-muted-foreground italic">
+            {quote}
           </SheetDescription>
         </SheetHeader>
 
@@ -58,30 +106,19 @@ const Compose = ({ open, onOpenChange }: ComposeProps) => {
               id="message"
               placeholder="Type your message here..."
               className="min-h-12 resize-none border-0 p-3 shadow-none focus-visible:ring-0 text-base"
-              // style={{ border: "1px solid red"}}
+              value={message}
+              onChange={(evt) => setMessage(evt.target.value)}
             />
             <div className="flex items-center p-3 pt-0">
-              {/* <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <IconPaperclip className="size-4" />
-                      <span className="sr-only">Attach file</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">Attach File</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <IconMic className="size-4" />
-                      <span className="sr-only">Use Microphone</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">Use Microphone</TooltipContent>
-                </Tooltip>
-              </TooltipProvider> */}
-              <Button type="submit" size="default" className="ml-auto gap-1.5">
+              <Button
+                type="submit"
+                size="default"
+                className="ml-auto gap-1.5"
+                onClick={(event) => {
+                  event.preventDefault();
+                  sendMessage();
+                }}
+              >
                 Post
                 <IconCornerDownLeft className="size-3.5" />
               </Button>
@@ -92,5 +129,10 @@ const Compose = ({ open, onOpenChange }: ComposeProps) => {
     </Sheet>
   );
 };
+
+function getDescriptionQuote() {
+  const index = Math.floor(Math.random() * quotes.length);
+  return quotes[index];
+}
 
 export default Compose;

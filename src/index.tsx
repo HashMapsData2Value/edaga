@@ -6,14 +6,10 @@ import { Buffer } from "buffer";
 window.Buffer = Buffer;
 
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 
 import "@/style/global.css";
 
-import Replies from "@/components/views/Replies";
-import Topic from "@/components/views/Topic";
-import All from "@/components/views/All";
-import Topics from "@/components/views/Topics";
 import { ThemeProvider } from "@/ThemeProvider";
 import {
   // NetworkId,
@@ -22,32 +18,7 @@ import {
   WalletProvider,
 } from "@txnlab/use-wallet-react";
 import { walletManager } from "@/services/wallets";
-
-const router = createBrowserRouter(
-  [
-    {
-      path: "/",
-      element: <All />,
-    },
-    {
-      path: "replies/:originalTxId",
-      element: <Replies />,
-    },
-    {
-      path: "topics/",
-      element: <Topics />,
-      children: [
-        {
-          path: ":topic",
-          element: <Topic />,
-        },
-      ],
-    },
-  ],
-  {
-    basename: "",
-  }
-);
+import { router } from "@/Routes";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   // <React.StrictMode>

@@ -1,6 +1,8 @@
-import { Fragment, useEffect, useState } from "react";
+// import { Fragment, useEffect, useState } from "react";
+import { Fragment } from "react";
 import { format } from "date-fns";
-import { getTxns, microalgosToAlgos } from "@/utils";
+// import { getTxns, microalgosToAlgos } from "@/utils";
+import { microalgosToAlgos } from "@/utils";
 import Layout from "@/components/common/Layout";
 import { Button } from "@/components/ui/button";
 
@@ -33,6 +35,7 @@ import {
 import { Link } from "react-router-dom";
 import { useApplicationState } from "@/store";
 import { censorProfanity } from "@/utils/moderation";
+import { useTransactionContext } from "@/context/TransactionContext";
 
 const BREADCRUMBS = [
   { label: "Edaga", link: "#" },
@@ -40,16 +43,30 @@ const BREADCRUMBS = [
 ];
 
 function All() {
-  const { broadcastChannel, moderation } = useApplicationState();
+  // const { broadcastChannel, moderation } = useApplicationState();
+  const { moderation } = useApplicationState();
 
-  const [transactions, setTransactions] = useState<TxnProps[]>([]);
+  // const [transactions, setTransactions] = useState<TxnProps[]>([]);
 
-  useEffect(() => {
-    if (!broadcastChannel.address) return;
-    getTxns(broadcastChannel.address).then((transactions) => {
-      setTransactions(transactions);
-    });
-  }, [broadcastChannel]);
+  const { transactions } = useTransactionContext();
+
+  // useEffect(() => {
+  //   if (!broadcastChannel.address) return;
+  //   getTxns(broadcastChannel.address).then((transactions) => {
+  //     setTransactions(transactions);
+  //   });
+  // }, [broadcastChannel]);
+
+  // const loadTransactions = () => {
+  //   if (!broadcastChannel.address) return;
+  //   getTxns(broadcastChannel.address).then((transactions) => {
+  //     setTransactions(transactions);
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   loadTransactions();
+  // }, [broadcastChannel]);
 
   return (
     <Layout breadcrumbOptions={BREADCRUMBS}>
