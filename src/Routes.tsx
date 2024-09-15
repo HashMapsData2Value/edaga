@@ -2,10 +2,10 @@ import { createBrowserRouter } from "react-router-dom";
 
 import { TransactionProvider } from "@/context/TransactionContext";
 
-import Replies from "@/components/views/Replies";
-import Topic from "@/components/views/Topic";
 import All from "@/components/views/All";
+import Replies from "@/components/views/Replies";
 import Topics from "@/components/views/Topics";
+// import Topic from "@/components/views/Topic";
 
 export const router = createBrowserRouter(
   [
@@ -32,16 +32,17 @@ export const router = createBrowserRouter(
           <Topics />
         </TransactionProvider>
       ),
-      children: [
-        {
-          path: ":topic",
-          element: (
-            <TransactionProvider>
-              <Topic />
-            </TransactionProvider>
-          ),
-        },
-      ],
+      // TODO - Topics sub-view
+      // children: [
+      //   {
+      //     path: ":topic",
+      //     element: (
+      //       <TransactionProvider>
+      //         <Topic />
+      //       </TransactionProvider>
+      //     ),
+      //   },
+      // ],
     },
   ],
   {

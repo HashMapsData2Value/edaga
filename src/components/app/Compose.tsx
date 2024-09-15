@@ -10,8 +10,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 import { CornerDownLeft as IconCornerDownLeft } from "lucide-react";
+import { UpdateIcon } from "@radix-ui/react-icons";
 import { useApplicationState } from "@/store";
 import { useTransactionContext } from "@/context/TransactionContext";
 import { quotes } from "@/assets/data/quotes";
@@ -19,9 +20,16 @@ import { quotes } from "@/assets/data/quotes";
 interface ComposeProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  isReply?: boolean;
+  replyToAddress?: string;
 }
 
-const Compose = ({ open, onOpenChange }: ComposeProps) => {
+const Compose = ({
+  open,
+  onOpenChange,
+  isReply,
+  replyToAddress,
+}: ComposeProps) => {
   const {
     algodClient,
     activeAddress,
@@ -30,47 +38,66 @@ const Compose = ({ open, onOpenChange }: ComposeProps) => {
     transactionSigner,
   } = useWallet();
 
-  const { broadcastChannel } = useApplicationState();
+  const { broadcastChannel, handle } = useApplicationState();
   const { loadTransactions } = useTransactionContext();
 
   const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   // const hash = crypto.randomUUID().slice(-5);
 
   const sendMessage = async () => {
     if (!activeAddress) throw new Error("No active account");
+    if (message.length === 0) {
+      alert("Type a message before posting");
+      return;
+    }
 
-    // Prepare message
-    const note = new Uint8Array(Buffer.from(`ARC00-0;a;;LeslieOA;${message}`));
+    setIsSending(true);
 
-    const transactionComposer = new algosdk.AtomicTransactionComposer();
-    const suggestedParams = await algodClient.getTransactionParams().do();
+    try {
+      // Prepare message
+      const prefix = isReply ? `r;${replyToAddress}` : "a;";
+      const note = new Uint8Array(
+        Buffer.from(`ARC00-0;${prefix};${handle};${message}`)
+      );
 
-    const transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      from: activeAddress,
-      to: broadcastChannel.address,
-      amount: 0,
-      note,
-      suggestedParams,
-    });
+      // const note = new Uint8Array(Buffer.from(`ARC00-0;a;;LeslieOA;${message}`));
 
-    transactionComposer.addTransaction({
-      txn: transaction,
-      signer: transactionSigner,
-    });
+      const transactionComposer = new algosdk.AtomicTransactionComposer();
+      const suggestedParams = await algodClient.getTransactionParams().do();
 
-    console.info("Sending message...", transaction);
+      const transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: activeAddress,
+        to: broadcastChannel.address,
+        amount: 0,
+        note,
+        suggestedParams,
+      });
 
-    const result = await transactionComposer.execute(algodClient, 4);
+      transactionComposer.addTransaction({
+        txn: transaction,
+        signer: transactionSigner,
+      });
 
-    console.info("✅ Successfully sent transaction!", {
-      confirmedRound: result.confirmedRound,
-      txIDs: result.txIDs,
-    });
+      console.info("Sending message...", transaction);
 
-    loadTransactions();
+      const result = await transactionComposer.execute(algodClient, 4);
 
-    onOpenChange(false);
+      console.info("✅ Successfully sent transaction!", {
+        confirmedRound: result.confirmedRound,
+        txIDs: result.txIDs,
+      });
+
+      loadTransactions();
+
+      setMessage("");
+    } catch (err) {
+      console.error("Failed to post message", err);
+    } finally {
+      setIsSending(false);
+      onOpenChange(false);
+    }
   };
 
   useEffect(() => {
@@ -118,9 +145,19 @@ const Compose = ({ open, onOpenChange }: ComposeProps) => {
                   event.preventDefault();
                   sendMessage();
                 }}
+                disabled={isSending}
               >
-                Post
-                <IconCornerDownLeft className="size-3.5" />
+                {isSending ? (
+                  <>
+                    Posting
+                    <UpdateIcon className="size-3.5 motion-safe:animate-spin-slow" />
+                  </>
+                ) : (
+                  <>
+                    Post
+                    <IconCornerDownLeft className="size-3.5" />
+                  </>
+                )}
               </Button>
             </div>
           </form>

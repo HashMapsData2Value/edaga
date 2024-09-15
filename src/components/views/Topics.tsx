@@ -41,6 +41,7 @@ const BREADCRUMBS = [
 ];
 
 function Topics() {
+  console.log("2. Topics.tsx");
   const { broadcastChannel, moderation } = useApplicationState();
 
   const [transactions, setTransactions] = useState<TxnProps[]>([]);

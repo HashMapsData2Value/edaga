@@ -3,8 +3,10 @@ import Dialog from "@/components/common/Dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import SvgIcon from "@/components/common/SvgIcon";
 import { shortenedAccountBase32 } from "@/utils";
+import { useApplicationState } from "@/store";
 
 export interface WalletProps {
   openWalletModal: boolean;
@@ -13,6 +15,7 @@ export interface WalletProps {
 
 const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
   const { wallets, activeWallet, activeAccount } = useWallet();
+  const { handle, setHandle } = useApplicationState();
 
   const handleWalletChange = (wallet: Wallet) => {
     document.body.style.pointerEvents = "auto";
@@ -20,23 +23,61 @@ const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
     // setOpenWalletModal(false);
   };
 
+  const handleSetHandle = () => {
+    if (handle.trim() === "") {
+      alert("Please enter a handle before proceeding");
+      return;
+    }
+    setOpenWalletModal(false);
+  };
+
   return (
     <Dialog
       title={`${activeWallet ? "Connected" : "Connect"} to Edaga`}
-      // description="Connect to post a message, topic or reply"
       description={`${
         activeWallet ? "P" : "Connect to p"
       }ost a message, topic or reply`}
       open={openWalletModal}
-      onOpenChange={setOpenWalletModal}
+      // onOpenChange={setOpenWalletModal}
+      onOpenChange={(isOpen) => {
+        if (handle.trim() !== "") {
+          setOpenWalletModal(isOpen);
+        } else {
+          alert("Please enter a handle before closing.");
+        }
+      }}
     >
       {activeWallet ? (
         <>
+          <div className="pb-6">
+            <div className="flex items-center gap-2 pb-2">
+              <Input
+                type="text"
+                placeholder="Type a handle"
+                className="flex-1 p-2 border rounded-md"
+                // value={handle}
+                // onChange={(evt) => setHandle(evt.target.value)}
+                value={handle}
+                onChange={(evt) => setHandle(evt.target.value)}
+              />
+              <Button
+                className="ml-auto"
+                variant="outline"
+                onClick={handleSetHandle}
+              >
+                Set Handle
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Note: your handle (username) will appear posts and can be changed
+              ay anytime
+            </p>
+          </div>
+
           <RadioGroup defaultValue={``}>
             <Label
               key={activeWallet.id}
               htmlFor={`${activeWallet.id}`}
-              // className="flex items-center space-x-4 rounded-md border p-6 pt-3 pb-3"
               className="flex items-center space-x-4 rounded-md border p-6 pt-3 pb-3"
             >
               <SvgIcon
@@ -56,7 +97,8 @@ const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
                 </p>
               </div>
               <Button
-                variant="secondary"
+                // variant="secondary"
+                variant="destructive"
                 onClick={() => activeWallet.disconnect()}
               >
                 Disconnect
@@ -72,7 +114,6 @@ const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
               <Label
                 key={wallet.id}
                 htmlFor={`${wallet.id}`}
-                // className="flex items-center space-x-4 rounded-md border p-6"
                 className="flex items-center space-x-4 rounded-md border p-6 pt-3 pb-3"
                 onClick={() => handleWalletChange(wallet)}
               >
@@ -85,9 +126,6 @@ const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
                   <p className="text-lg font-medium leading-none">
                     {wallet.metadata.name}
                   </p>
-                  {/* <p className="text-sm font-light text-muted-foreground">
-                  {JSON.stringify(wallet)}
-                </p> */}
                 </div>
                 <RadioGroupItem
                   className="w-[20px] h-[20px]"

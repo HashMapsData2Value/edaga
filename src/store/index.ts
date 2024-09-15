@@ -7,6 +7,8 @@ type Theme = "dark" | "light" | "system";
 interface ApplicationState {
   broadcastChannel: BroadcastChannel;
   setBroadcastChannel: (channel: BroadcastChannel) => void;
+  handle: string;
+  setHandle: (handle: string) => void;
   theme: Theme;
   setTheme: (theme: Theme) => void;
   moderation: boolean;
@@ -19,6 +21,8 @@ export const useApplicationState = create<ApplicationState>()(
       broadcastChannel: BroadcastChannels[0],
       setBroadcastChannel: (channel: BroadcastChannel) =>
         set({ broadcastChannel: channel }),
+      handle: "",
+      setHandle: (handle: string) => set({ handle }),
       theme: "system",
       setTheme: (theme: Theme) => set({ theme }),
       moderation: true,

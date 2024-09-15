@@ -213,12 +213,13 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
                 </div>
               </div>
 
-              {/* {activeWallet && ( */}
-              <div className="flex ml-auto gap-2">
-                <Button size="sm" onClick={() => openSheet()}>
-                  {`New ${getLocationLabel().singular}`}
-                </Button>
-              </div>
+              {activeWallet && (
+                <div className="flex ml-auto gap-2">
+                  <Button size="sm" onClick={() => openSheet()}>
+                    {`New ${getLocationLabel().singular}`}
+                  </Button>
+                </div>
+              )}
             </div>
             <div className="grid gap-4 lg:grid-cols-3 lg:gap-8">
               {children}

@@ -29,13 +29,16 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
-  MessageCircleMore as IconMessageCircleMore,
+  // MessageCircleMore as IconMessageCircleMore,
+  MessageCircle as IconMessageCircle,
   MoreHorizontal as IconMoreHorizontal,
+  Reply as IconReply,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApplicationState } from "@/store";
 import { censorProfanity } from "@/utils/moderation";
 import { useTransactionContext } from "@/context/TransactionContext";
+// import DebugMessage from "@/components/debug/DebugMessage";
 
 const BREADCRUMBS = [
   { label: "Edaga", link: "#" },
@@ -46,27 +49,7 @@ function All() {
   // const { broadcastChannel, moderation } = useApplicationState();
   const { moderation } = useApplicationState();
 
-  // const [transactions, setTransactions] = useState<TxnProps[]>([]);
-
   const { transactions } = useTransactionContext();
-
-  // useEffect(() => {
-  //   if (!broadcastChannel.address) return;
-  //   getTxns(broadcastChannel.address).then((transactions) => {
-  //     setTransactions(transactions);
-  //   });
-  // }, [broadcastChannel]);
-
-  // const loadTransactions = () => {
-  //   if (!broadcastChannel.address) return;
-  //   getTxns(broadcastChannel.address).then((transactions) => {
-  //     setTransactions(transactions);
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   loadTransactions();
-  // }, [broadcastChannel]);
 
   return (
     <Layout breadcrumbOptions={BREADCRUMBS}>
@@ -166,21 +149,9 @@ function All() {
                           )}
                         </div>
                       </div>
-                      {/* <div
-                        className="grid gap-3 mt-6"
-                        style={{
-                          width: 500,
-                          overflow: "hidden",
-                          overflowX: "scroll",
-                          border: "1px dotted red",
-                        }}
-                      >
-                        <pre className="text-xs">
-                          {JSON.stringify(post, null, 2)}
-                        </pre>
-                      </div> */}
+                      {/* <DebugMessage post={post} /> */}
                     </CardContent>
-                    <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-3">
+                    <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-1 md:px-6 md:py-3">
                       <div className="text-xs text-muted-foreground">
                         <time dateTime="2023-11-23">
                           {format(
@@ -190,27 +161,56 @@ function All() {
                         </time>
                       </div>
 
-                      <div className="flex items-center gap-4">
+                      <div
+                        // className="flex items-center gap-4"
+                        className="flex items-center gap-2 max-sm:gap-1"
+                        // style={{ border: "1px solid red" }}
+                      >
                         {replies.length > 0 && (
-                          <div className="text-xs text-muted-foreground">
+                          <div
+                            className="text-xs text-muted-foreground"
+                            // style={{ border: "1px solid red" }}
+                          >
                             <Button
                               aria-haspopup="true"
                               size="sm"
                               variant="ghost"
-                              className="h-6"
+                              className="h-8 max-sm:p-0 max-sm:pl-1 max-sm:pr-2"
+                              // style={{ border: "1px solid red" }}
                             >
                               <Link
-                                className="flex items-center gap-1 text-xs text-muted-foreground"
+                                className="flex items-center text-xs text-muted-foreground"
+                                // style={{ border: "1px solid red" }}
                                 to={`replies/${id}`}
                               >
-                                {`${replies.length} ${
-                                  replies.length > 1 ? "Replies" : "Reply"
-                                }`}
-                                <IconMessageCircleMore className="h-4 w-4 ml-1.5 text-muted-foreground" />
+                                {replies.length}&nbsp;
+                                <span className="max-sm:hidden">
+                                  {replies.length > 1 ? "Replies" : "Reply"}
+                                </span>
+                                <IconMessageCircle className="h-5 w-5 ml-1 text-muted-foreground" />
                               </Link>
                             </Button>
                           </div>
                         )}
+
+                        <div className="text-xs text-muted-foreground">
+                          <Button
+                            aria-haspopup="true"
+                            size="sm"
+                            variant="ghost"
+                            // className="h-8 max-sm:p-0 max-sm:pl-1 max-sm:pr-2"
+                            className="h-8 max-sm:p-0 max-sm:pl-1 max-sm:pr-2"
+                            // style={{ border: "1px solid red" }}
+                          >
+                            <Link
+                              className="flex items-center gap-1 text-xs text-muted-foreground"
+                              to={`replies/${id}`}
+                            >
+                              <span className="max-sm:hidden">Reply</span>
+                              <IconReply className="h-5 w-5 ml-1 text-muted-foreground" />
+                            </Link>
+                          </Button>
+                        </div>
 
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
