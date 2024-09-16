@@ -40,10 +40,12 @@ const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
       open={openWalletModal}
       // onOpenChange={setOpenWalletModal}
       onOpenChange={(isOpen) => {
-        if (handle.trim() !== "") {
+        if (!activeWallet) {
+          setOpenWalletModal(isOpen);
+        } else if (handle.trim() !== "") {
           setOpenWalletModal(isOpen);
         } else {
-          alert("Please enter a handle before closing.");
+          alert("Please enter a handle");
         }
       }}
     >

@@ -22,6 +22,7 @@ interface ComposeProps {
   onOpenChange: (open: boolean) => void;
   isReply?: boolean;
   replyToAddress?: string;
+  // currentPath: string;
 }
 
 const Compose = ({
@@ -42,14 +43,44 @@ const Compose = ({
   const { loadTransactions } = useTransactionContext();
 
   const [message, setMessage] = useState("");
+  const maxMessageLength = 800;
   const [isSending, setIsSending] = useState(false);
 
-  // const hash = crypto.randomUUID().slice(-5);
+  /**
+   * As the longest fixed part of a message is a reply:
+   * `ARC00-0;r;0000000000000000000000000000000000000000000000000000;;` (64 characters)
+   *
+   * ..and the longest NFD (including segment) is:
+   * `{27}.{27}.algo` (60 characters*)
+   *
+   * So, that's:
+   * ARC00-0;r;0000000000000000000000000000000000000000000000000000;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; (124 characters)
+   *
+   * ...leaving 900 for a message.
+   *
+   * I figure we'd want media attachment's at some point
+   * (common IPFS CID lengths are between 46 [v0] to 55 [v1, base58+sha256]),
+   * and to give the message format space for extensions,
+   * let's settle on 800 characters for a message.
+   *
+   * So that's:
+   *
+   * 60 characters max for a handle
+   * 800 characters max for a message
+   *
+   * *See [Fisherman's Discord post](https://discord.com/channels/925410112368156732/925410112951160879/1190400846547144754))
+   */
 
   const sendMessage = async () => {
     if (!activeAddress) throw new Error("No active account");
     if (message.length === 0) {
       alert("Type a message before posting");
+      return;
+    }
+    if (message.length > maxMessageLength) {
+      alert(
+        `Your message exceeds the maximum length of ${maxMessageLength} characters.`
+      );
       return;
     }
 
@@ -134,9 +165,26 @@ const Compose = ({
               placeholder="Type your message here..."
               className="min-h-12 resize-none border-0 p-3 shadow-none focus-visible:ring-0 text-base"
               value={message}
-              onChange={(evt) => setMessage(evt.target.value)}
+              onChange={(evt) => {
+                const inputMessage = evt.target.value;
+                if (inputMessage.length <= maxMessageLength) {
+                  setMessage(inputMessage);
+                } else {
+                  setMessage(inputMessage.slice(0, maxMessageLength));
+                }
+              }}
             />
-            <div className="flex items-center p-3 pt-0">
+            <div className="flex items-center justify-between p-3 pt-0">
+              <span
+                className="text-xs text-muted-foreground m-2"
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                }}
+              >
+                {maxMessageLength - message.length}/{maxMessageLength}
+              </span>
               <Button
                 type="submit"
                 size="default"

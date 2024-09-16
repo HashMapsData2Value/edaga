@@ -97,6 +97,7 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
     );
     return currentPath ? pathToLabelMap[currentPath] : defaultLabel;
   };
+  console.log("Current Path", location.pathname);
 
   const [openWalletModal, setOpenWalletModal] = useState(false);
 
