@@ -48,7 +48,7 @@ const Compose = ({
   const [message, setMessage] = useState("");
   const maxMessageLength = 800;
   const [topicName, setTopicName] = useState("");
-  const maxTopicLength = 50;
+  const maxTopicLength = 60;
   const [isSending, setIsSending] = useState(false);
 
   const activeHandle = activeAddress ? handles[activeAddress] || "" : "";
