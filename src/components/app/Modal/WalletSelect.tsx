@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import SvgIcon from "@/components/common/SvgIcon";
 import { shortenedAccountBase32 } from "@/utils";
 import { useApplicationState } from "@/store";
+import { useEffect, useState } from "react";
 
 export interface WalletProps {
   openWalletModal: boolean;
@@ -15,7 +16,8 @@ export interface WalletProps {
 
 const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
   const { wallets, activeWallet, activeAccount } = useWallet();
-  const { handle, setHandle } = useApplicationState();
+  const { handles, setHandle } = useApplicationState();
+  const [inputHandle, setInputHandle] = useState("");
 
   const handleWalletChange = (wallet: Wallet) => {
     document.body.style.pointerEvents = "auto";
@@ -23,12 +25,21 @@ const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
     // setOpenWalletModal(false);
   };
 
+  useEffect(() => {
+    if (activeAccount) {
+      setInputHandle(handles[activeAccount.address] || "");
+    }
+  }, [activeAccount, handles]);
+
   const handleSetHandle = () => {
-    if (handle.trim() === "") {
+    if (inputHandle.trim() === "") {
       alert("Please enter a handle before proceeding");
       return;
     }
-    setOpenWalletModal(false);
+    if (activeAccount) {
+      setHandle(activeAccount.address, inputHandle);
+      setOpenWalletModal(false);
+    }
   };
 
   return (
@@ -38,11 +49,10 @@ const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
         activeWallet ? "P" : "Connect to p"
       }ost a message, topic or reply`}
       open={openWalletModal}
-      // onOpenChange={setOpenWalletModal}
       onOpenChange={(isOpen) => {
         if (!activeWallet) {
           setOpenWalletModal(isOpen);
-        } else if (handle.trim() !== "") {
+        } else if (inputHandle.trim() !== "") {
           setOpenWalletModal(isOpen);
         } else {
           alert("Please enter a handle");
@@ -57,10 +67,8 @@ const WalletSelect = ({ openWalletModal, setOpenWalletModal }: WalletProps) => {
                 type="text"
                 placeholder="Type a handle"
                 className="flex-1 p-2 border rounded-md"
-                // value={handle}
-                // onChange={(evt) => setHandle(evt.target.value)}
-                value={handle}
-                onChange={(evt) => setHandle(evt.target.value)}
+                value={inputHandle}
+                onChange={(evt) => setInputHandle(evt.target.value)}
               />
               <Button
                 className="ml-auto"

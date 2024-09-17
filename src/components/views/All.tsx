@@ -56,7 +56,7 @@ function All() {
             const post = processMessage(tx) as MessageReturn;
 
             if ("error" in post) {
-              console.error("Error processing message:", post.error);
+              console.warn("Error processing message:", post.error);
               return null;
             }
 

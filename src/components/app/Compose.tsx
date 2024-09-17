@@ -39,12 +39,14 @@ const Compose = ({
     transactionSigner,
   } = useWallet();
 
-  const { broadcastChannel, handle } = useApplicationState();
+  const { broadcastChannel, handles } = useApplicationState();
   const { loadTransactions } = useTransactionContext();
 
   const [message, setMessage] = useState("");
   const maxMessageLength = 800;
   const [isSending, setIsSending] = useState(false);
+
+  const activeHandle = activeAddress ? handles[activeAddress] || "" : "";
 
   /**
    * As the longest fixed part of a message is a reply:
@@ -90,7 +92,7 @@ const Compose = ({
       // Prepare message
       const prefix = isReply ? `r;${replyToTxId}` : "a;";
       const note = new Uint8Array(
-        Buffer.from(`ARC00-0;${prefix};${handle};${message}`)
+        Buffer.from(`ARC00-0;${prefix};${activeHandle};${message}`)
       );
 
       // const note = new Uint8Array(Buffer.from(`ARC00-0;a;;LeslieOA;${message}`));
