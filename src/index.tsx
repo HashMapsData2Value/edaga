@@ -1,9 +1,4 @@
-// Polyfill for `global`
-window.global = window;
-
-// Polyfill for `Buffer`
-import { Buffer } from "buffer";
-window.Buffer = Buffer;
+import './polyfills';
 
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
