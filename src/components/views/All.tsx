@@ -1,7 +1,5 @@
-// import { Fragment, useEffect, useState } from "react";
 import { Fragment } from "react";
 import { format } from "date-fns";
-// import { getTxns, microalgosToAlgos } from "@/utils";
 import { microalgosToAlgos } from "@/utils";
 import Layout from "@/components/common/Layout";
 import { Button } from "@/components/ui/button";
@@ -29,7 +27,6 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
-  // MessageCircleMore as IconMessageCircleMore,
   MessageCircle as IconMessageCircle,
   MoreHorizontal as IconMoreHorizontal,
   Reply as IconReply,
@@ -161,26 +158,17 @@ function All() {
                         </time>
                       </div>
 
-                      <div
-                        // className="flex items-center gap-4"
-                        className="flex items-center gap-2 max-sm:gap-1"
-                        // style={{ border: "1px solid red" }}
-                      >
+                      <div className="flex items-center gap-2 max-sm:gap-1">
                         {replies.length > 0 && (
-                          <div
-                            className="text-xs text-muted-foreground"
-                            // style={{ border: "1px solid red" }}
-                          >
+                          <div className="text-xs text-muted-foreground">
                             <Button
                               aria-haspopup="true"
                               size="sm"
                               variant="ghost"
                               className="h-8 max-sm:p-0 max-sm:pl-1 max-sm:pr-2"
-                              // style={{ border: "1px solid red" }}
                             >
                               <Link
                                 className="flex items-center text-xs text-muted-foreground"
-                                // style={{ border: "1px solid red" }}
                                 to={`replies/${id}`}
                               >
                                 {replies.length}&nbsp;
@@ -198,13 +186,12 @@ function All() {
                             aria-haspopup="true"
                             size="sm"
                             variant="ghost"
-                            // className="h-8 max-sm:p-0 max-sm:pl-1 max-sm:pr-2"
                             className="h-8 max-sm:p-0 max-sm:pl-1 max-sm:pr-2"
-                            // style={{ border: "1px solid red" }}
                           >
                             <Link
                               className="flex items-center gap-1 text-xs text-muted-foreground"
                               to={`replies/${id}`}
+                              state={{ isReplying: true }}
                             >
                               <span className="max-sm:hidden">Reply</span>
                               <IconReply className="h-5 w-5 ml-1 text-muted-foreground" />

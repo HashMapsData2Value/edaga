@@ -21,7 +21,7 @@ interface ComposeProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isReply?: boolean;
-  replyToAddress?: string;
+  replyToTxId?: string;
   // currentPath: string;
 }
 
@@ -29,7 +29,7 @@ const Compose = ({
   open,
   onOpenChange,
   isReply,
-  replyToAddress,
+  replyToTxId,
 }: ComposeProps) => {
   const {
     algodClient,
@@ -88,7 +88,7 @@ const Compose = ({
 
     try {
       // Prepare message
-      const prefix = isReply ? `r;${replyToAddress}` : "a;";
+      const prefix = isReply ? `r;${replyToTxId}` : "a;";
       const note = new Uint8Array(
         Buffer.from(`ARC00-0;${prefix};${handle};${message}`)
       );

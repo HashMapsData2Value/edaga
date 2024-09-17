@@ -51,6 +51,15 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isReply = location.pathname.includes("replies");
+  const { isReplying } = location.state || { isReplying: false };
+  const getReplyTxId = () => {
+    const pathname = location.pathname;
+    const match = pathname.match(/replies\/([^/]+)/);
+    const transactionId = match ? match[1] : null;
+    return transactionId;
+  };
+
   const NAVIGATION = [
     {
       label: "Home",
@@ -97,7 +106,6 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
     );
     return currentPath ? pathToLabelMap[currentPath] : defaultLabel;
   };
-  console.log("Current Path", location.pathname);
 
   const [openWalletModal, setOpenWalletModal] = useState(false);
 
@@ -108,9 +116,13 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
 
   const handleModerationToggle = () => setModeration(!moderation);
 
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(isReplying);
   const openSheet = () => setIsSheetOpen(true);
   // const closeSheet = () => setIsSheetOpen(false);
+
+  useEffect(() => {
+    if (isReplying) setIsSheetOpen(true);
+  }, [isReplying]);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40 pb-10">
@@ -122,7 +134,11 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
         options={NAVIGATION}
       />
 
-      <Compose open={isSheetOpen} onOpenChange={setIsSheetOpen} />
+      <Compose
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+        {...(isReply ? { isReply: true, replyToTxId: getReplyTxId()! } : {})}
+      />
 
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <MainHeader

@@ -44,6 +44,7 @@ function Replies() {
   if (!originalTx) return;
 
   const processedMessage = processMessage(originalTx) as MessageReturn;
+
   const formatMessage = moderation
     ? censorProfanity(processedMessage.message.raw)
     : processedMessage.message.raw;
@@ -61,12 +62,21 @@ function Replies() {
           <Card>
             <CardHeader>
               <CardTitle>
-                {processedMessage.nickname}&nbsp;&nbsp;
+                {/* {processedMessage.nickname}&nbsp;&nbsp; */}
+                {moderation
+                  ? censorProfanity(processedMessage.nickname)
+                  : processedMessage.nickname}
+                &nbsp;&nbsp;
                 <small
                   className="text-s font-light text-muted-foreground"
                   title={processedMessage?.sender}
                 >
-                  {shortenedAccountBase32(processedMessage.sender)}
+                  {/* {shortenedAccountBase32(processedMessage.sender)} */}
+                  {moderation
+                    ? censorProfanity(
+                        shortenedAccountBase32(processedMessage.sender)
+                      )
+                    : shortenedAccountBase32(processedMessage.sender)}
                 </small>
               </CardTitle>
             </CardHeader>
@@ -78,19 +88,6 @@ function Replies() {
                   </h4>
                 </div>
               </div>
-              {/* <div
-                className="grid gap-3 mt-6"
-                style={{
-                  width: 500,
-                  overflow: "hidden",
-                  overflowX: "scroll",
-                  border: "1px dotted red",
-                }}
-              >
-                <pre className="text-xs">
-                  {JSON.stringify(processedMessage, null, 2)}
-                </pre>
-              </div> */}
             </CardContent>
 
             <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-3">
@@ -162,12 +159,17 @@ function Replies() {
                   <Card className={"bg-muted/25"}>
                     <CardHeader>
                       <CardTitle>
-                        {nickname}&nbsp;&nbsp;
+                        {/* {nickname}&nbsp;&nbsp; */}
+                        {moderation ? censorProfanity(nickname) : nickname}
+                        &nbsp;&nbsp;
                         <small
                           className="text-s font-light text-muted-foreground"
                           title={sender}
                         >
-                          {shortenedAccountBase32(sender)}
+                          {/* {shortenedAccountBase32(sender)} */}
+                          {moderation
+                            ? censorProfanity(shortenedAccountBase32(sender))
+                            : shortenedAccountBase32(sender)}
                         </small>
                       </CardTitle>
                     </CardHeader>
@@ -179,19 +181,6 @@ function Replies() {
                           </h4>
                         </div>
                       </div>
-                      {/* <div
-                        className="grid gap-3 mt-6"
-                        style={{
-                          width: 500,
-                          overflow: "hidden",
-                          overflowX: "scroll",
-                          border: "1px dotted red",
-                        }}
-                      >
-                        <pre className="text-xs">
-                          {JSON.stringify(post, null, 2)}
-                        </pre>
-                      </div> */}
                     </CardContent>
                     <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-3">
                       <div className="text-xs text-muted-foreground">
