@@ -8,24 +8,12 @@ import {
   Info as IconInfo,
   Store as IconStore,
   ChevronLeft as IconChevronLeft,
-  RadioTower as IconRadioTower,
-  // SlidersHorizontal,
   ListFilter as IconListFilter,
 } from "lucide-react";
 
 import MainHeader from "@/components/common/MainHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  // AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 import {
   Popover,
@@ -42,14 +30,10 @@ import {
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  type BroadcastChannel,
-  BroadcastChannels,
-} from "@/config/broadcast.config";
-import { shortenedAccountBase32 } from "@/utils";
 import { useApplicationState } from "@/store";
-// import { Separator } from "@/components/ui/separator";
+import Modal from "@/components/app/Modal";
+import { useWallet } from "@txnlab/use-wallet-react";
+import Compose from "@/components/app/Compose";
 
 export interface LayoutProps {
   children?: string | ReactNode;
@@ -57,8 +41,26 @@ export interface LayoutProps {
 }
 
 const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
+  const { activeWallet, activeAccount } = useWallet();
+
+  useEffect(() => {
+    console.log("activeWallet, activeAccount");
+    console.log(activeWallet, activeAccount);
+  }, [activeWallet, activeAccount]);
+
   const location = useLocation();
   const navigate = useNavigate();
+
+  const isTopic = location.pathname.includes("topic");
+
+  const isReply = location.pathname.includes("replies");
+  const { isReplying } = location.state || { isReplying: false };
+  const getReplyTxId = () => {
+    const pathname = location.pathname;
+    const match = pathname.match(/replies\/([^/]+)/);
+    const transactionId = match ? match[1] : null;
+    return transactionId;
+  };
 
   const NAVIGATION = [
     {
@@ -97,45 +99,32 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
       "/replies": { singular: "Reply", plural: "Replies" },
       "/topics": { singular: "Topic", plural: "Topics" },
     };
-
     const defaultLabel: Label = {
       singular: "Conversation",
       plural: "Conversations",
     };
-
     const currentPath = Object.keys(pathToLabelMap).find((path) =>
       location.pathname.includes(path)
     );
-
     return currentPath ? pathToLabelMap[currentPath] : defaultLabel;
   };
+
+  const [openWalletModal, setOpenWalletModal] = useState(false);
 
   const [openBroadcastAccountAlert, setOpenBroadcastAccountAlert] =
     useState(false);
 
-  const { broadcastChannel, setBroadcastChannel } = useApplicationState();
-  const handleChannelChange = (newValue: string) => {
-    const selectedChannel = BroadcastChannels.find(
-      (channel) =>
-        `${channel.owner}-${channel.address}-${channel.network.environment}` ===
-        newValue
-    );
-
-    if (selectedChannel) {
-      setBroadcastChannel(selectedChannel);
-      navigate("/");
-    }
-
-    setOpenBroadcastAccountAlert(false);
-  };
-
-  useEffect(() => {
-    console.log("broadcastChannel", broadcastChannel);
-  }, [broadcastChannel]);
-
   const { moderation, setModeration } = useApplicationState();
 
   const handleModerationToggle = () => setModeration(!moderation);
+
+  const [isSheetOpen, setIsSheetOpen] = useState(isReplying);
+  const openSheet = () => setIsSheetOpen(true);
+  // const closeSheet = () => setIsSheetOpen(false);
+
+  useEffect(() => {
+    if (isReplying) setIsSheetOpen(true);
+  }, [isReplying]);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40 pb-10">
@@ -147,6 +136,13 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
         options={NAVIGATION}
       />
 
+      <Compose
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+        {...(isReply ? { isReply: true, replyToTxId: getReplyTxId()! } : {})}
+        {...(isTopic ? { isTopic: true } : {})}
+      />
+
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <MainHeader
           title="Edaga"
@@ -156,6 +152,7 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
           navigationOptions={NAVIGATION}
           breadcrumbOptions={breadcrumbOptions}
           setOpenBroadcastAccountAlert={setOpenBroadcastAccountAlert}
+          setOpenWalletModal={setOpenWalletModal}
         />
 
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
@@ -236,11 +233,13 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
                 </div>
               </div>
 
-              <div className="flex ml-auto gap-2">
-                <Button size="sm" onClick={() => alert("TODO - Soon")}>
-                  {`New ${getLocationLabel().singular}`}
-                </Button>
-              </div>
+              {activeWallet && (
+                <div className="flex ml-auto gap-2">
+                  <Button size="sm" onClick={() => openSheet()}>
+                    {`New ${getLocationLabel().singular}`}
+                  </Button>
+                </div>
+              )}
             </div>
             <div className="grid gap-4 lg:grid-cols-3 lg:gap-8">
               {children}
@@ -275,66 +274,14 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
         </main>
 
         {/* Alerts and Modals */}
-        <AlertDialog
-          open={openBroadcastAccountAlert}
-          onOpenChange={setOpenBroadcastAccountAlert}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Select Broadcast Account</AlertDialogTitle>
-              <AlertDialogDescription className="pb-4">
-                A broadcast account is an account where messages are sent to on
-                Edaga.
-              </AlertDialogDescription>
-
-              <RadioGroup
-                defaultValue={`${broadcastChannel.owner}-${broadcastChannel.address}-${broadcastChannel.network.environment}`}
-                onValueChange={handleChannelChange}
-              >
-                {BroadcastChannels.map((account: BroadcastChannel) => {
-                  const { name, address, owner, description, network } =
-                    account;
-                  return (
-                    <Label
-                      key={address}
-                      htmlFor={`${owner}-${address}-${network.environment}`}
-                      className="flex items-center space-x-4 rounded-md border p-6"
-                    >
-                      <IconRadioTower
-                        className="text-muted-foreground"
-                        size={30}
-                      />
-                      <div className="flex-1 space-y-1 pl-2">
-                        <p className="text-md font-medium leading-none">
-                          {name}
-                        </p>
-                        <p className="text-sm font-light text-muted-foreground">
-                          {description}
-                        </p>
-                        <p className="text-xs font-light text-muted-foreground">
-                          {shortenedAccountBase32(address)}
-                        </p>
-                      </div>
-                      <RadioGroupItem
-                        className="w-[20px] h-[20px]"
-                        value={`${owner}-${address}-${network.environment}`}
-                        id={`${owner}-${address}-${network.environment}`}
-                      />
-                    </Label>
-                  );
-                })}
-              </RadioGroup>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Close</AlertDialogCancel>
-              {/* <AlertDialogAction
-                onClick={() => setOpenBroadcastAccountAlert(false)}
-              >
-                Switch
-              </AlertDialogAction> */}
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <Modal.BroadcastChannel
+          openBroadcastAccountAlert={openBroadcastAccountAlert}
+          setOpenBroadcastAccountAlert={setOpenBroadcastAccountAlert}
+        />
+        <Modal.WalletSelect
+          openWalletModal={openWalletModal}
+          setOpenWalletModal={setOpenWalletModal}
+        />
       </div>
     </div>
   );

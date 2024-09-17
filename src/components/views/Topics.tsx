@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import { format } from "date-fns";
 
-import { getTxns, microalgosToAlgos } from "@/utils";
+import { microalgosToAlgos } from "@/utils";
 import Layout from "@/components/common/Layout";
 import { Button } from "@/components/ui/button";
 
@@ -29,11 +28,14 @@ import {
 import {
   MessageCircleMore as IconMessageCircleMore,
   MoreHorizontal as IconMoreHorizontal,
+  Reply as IconReply,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useApplicationState } from "@/store";
 import { censorProfanity } from "@/utils/moderation";
+import { useTransactionContext } from "@/context/TransactionContext";
+import { useEffect } from "react";
 
 const BREADCRUMBS = [
   { label: "Edaga", link: "/" },
@@ -41,33 +43,22 @@ const BREADCRUMBS = [
 ];
 
 function Topics() {
-  const { broadcastChannel, moderation } = useApplicationState();
+  const { moderation } = useApplicationState();
+  const { transactions, loadTopicTransactions } = useTransactionContext();
 
-  const [transactions, setTransactions] = useState<TxnProps[]>([]);
-
-  useEffect(() => {
-    getTxns(broadcastChannel.address).then((transactions) => {
-      const filteredTransactions = transactions.filter((txn: TxnProps) => {
-        const post = processMessage(txn);
-        if ("type" in post)
-          return (
-            post.type === MessageType.Topic ||
-            MessageType.Reply ||
-            MessageType.Like ||
-            MessageType.Dislike
-          );
-        return false;
-      });
-      setTransactions(filteredTransactions);
-    });
-  }, [broadcastChannel]);
+  useEffect(() => loadTopicTransactions(), [loadTopicTransactions]);
 
   return (
     <Layout breadcrumbOptions={BREADCRUMBS}>
       <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-        {transactions && transactions.length >= 1 ? (
+        {transactions && transactions.length > 0 ? (
           transactions.map((tx: TxnProps) => {
             const post = processMessage(tx) as MessageReturn;
+
+            if (!post.message || !("raw" in post.message)) {
+              console.warn("Invalid message format", post);
+              return null;
+            }
 
             const {
               sender,
@@ -80,13 +71,15 @@ function Topics() {
               topic,
             } = post;
 
-            const formatMessage = moderation
-              ? censorProfanity(message.raw)
-              : message.raw;
+            const formatMessage =
+              moderation && message?.raw
+                ? censorProfanity(message.raw)
+                : message.raw || "Message content is not available";
 
-            const formatTopicName = moderation
-              ? censorProfanity(topic!)
-              : topic;
+            const formatTopicName =
+              moderation && topic
+                ? censorProfanity(topic)
+                : topic || "Unknown Topic";
 
             if (post.type === MessageType.Topic) {
               const isReply = "parentId" in post ? true : false;
@@ -102,12 +95,19 @@ function Topics() {
                     <CardHeader>
                       <CardTitle className="flex items-center">
                         <div>
-                          {nickname}&nbsp;&nbsp;
+                          {moderation ? censorProfanity(nickname) : nickname}
+                          &nbsp;&nbsp;
                           <small
                             className="text-s font-light text-muted-foreground"
                             title={sender}
                           >
-                            {shortenedAccountBase32(sender)}
+                            {sender
+                              ? moderation
+                                ? censorProfanity(
+                                    shortenedAccountBase32(sender)
+                                  )
+                                : shortenedAccountBase32(sender)
+                              : "Unknown Sender"}
                           </small>
                         </div>
                         <Badge className="ml-auto">{formatTopicName}</Badge>
@@ -140,28 +140,24 @@ function Topics() {
                           )}
                         </div>
                       </div>
-                      {/* <div
-                      className="grid gap-3 mt-6"
-                      style={{
-                        width: 500,
-                        overflow: "hidden",
-                        overflowX: "scroll",
-                        border: "1px dotted red",
-                      }}
-                    >
-                      <pre className="text-xs">
-                        {JSON.stringify(post, null, 2)}
-                      </pre>
-                    </div> */}
                     </CardContent>
                     <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-3">
                       <div className="text-xs text-muted-foreground">
-                        <time dateTime="2023-11-23">
-                          {format(
-                            new Date(timestamp * 1000),
-                            " hh:mm:ss - do MMMM yyyy"
-                          )}
-                        </time>
+                        {timestamp ? (
+                          <time
+                            dateTime={format(
+                              new Date(timestamp * 1000),
+                              "yyyy-mm-dd"
+                            )}
+                          >
+                            {format(
+                              new Date(timestamp * 1000),
+                              " hh:mm:ss - do MMMM yyyy"
+                            )}
+                          </time>
+                        ) : (
+                          "Invalid date"
+                        )}
                       </div>
 
                       <div className="flex items-center gap-4">
@@ -185,6 +181,24 @@ function Topics() {
                             </Button>
                           </div>
                         )}
+
+                        <div className="text-xs text-muted-foreground">
+                          <Button
+                            aria-haspopup="true"
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 max-sm:p-0 max-sm:pl-1 max-sm:pr-2"
+                          >
+                            <Link
+                              className="flex items-center gap-1 text-xs text-muted-foreground"
+                              to={`replies/${id}`}
+                              state={{ isReplying: true }}
+                            >
+                              <span className="max-sm:hidden">Reply</span>
+                              <IconReply className="h-5 w-5 ml-1 text-muted-foreground" />
+                            </Link>
+                          </Button>
+                        </div>
 
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

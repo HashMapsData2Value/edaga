@@ -41,10 +41,10 @@ const baseBroadcastChannel: BroadcastChannel[] = [
 const devBroadcastAccountJson = import.meta.env.VITE_DEV_BROADCAST_ACCOUNT;
 if (devBroadcastAccountJson) {
   try {
-    const devBroadcastAccount: BroadcastChannel = JSON.parse(
+    const devBroadcastAccount: BroadcastChannel[] = JSON.parse(
       devBroadcastAccountJson
     );
-    baseBroadcastChannel.push(devBroadcastAccount);
+    baseBroadcastChannel.push(...devBroadcastAccount);
   } catch (error) {
     console.error("Failed to parse VITE_DEV_BROADCAST_ACCOUNT:", error);
   }
