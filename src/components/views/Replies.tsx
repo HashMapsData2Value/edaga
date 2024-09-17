@@ -1,5 +1,5 @@
-import { Fragment, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Fragment, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { format } from "date-fns";
 import Layout from "@/components/common/Layout";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,8 @@ import { useTransactionContext } from "@/context/TransactionContext";
 
 // TODO - Redirect to homepage if reply is not on current broadcast channel
 function Replies() {
-  const { moderation } = useApplicationState();
+  const navigate = useNavigate();
+  const { broadcastChannel, moderation } = useApplicationState();
   const { originalTxId } = useParams<{ originalTxId: string }>();
 
   const { originalTx, replies, loadOriginalTransaction, loadReplies } =
@@ -41,13 +42,27 @@ function Replies() {
     }
   }, [originalTxId, loadOriginalTransaction, loadReplies, originalTx]);
 
-  if (!originalTx) return;
+  const initialBroadcastChannel = useRef(broadcastChannel);
+  useEffect(() => {
+    if (broadcastChannel !== initialBroadcastChannel.current) navigate("/");
+  }, [broadcastChannel, navigate]);
+  if (!originalTx) return null;
 
   const processedMessage = processMessage(originalTx) as MessageReturn;
 
-  const formatMessage = moderation
-    ? censorProfanity(processedMessage.message.raw)
-    : processedMessage.message.raw;
+  if (!processedMessage || !processedMessage.message) {
+    console.log(
+      "Processed message is undefined or missing 'message' property:",
+      processedMessage
+    );
+    return null;
+  }
+
+  const formatMessage = processedMessage.message.raw
+    ? moderation
+      ? censorProfanity(processedMessage.message.raw)
+      : processedMessage.message.raw
+    : "Message content is not available";
 
   const BREADCRUMBS = [
     { label: "Edaga", link: "/" },
@@ -62,21 +77,23 @@ function Replies() {
           <Card>
             <CardHeader>
               <CardTitle>
-                {/* {processedMessage.nickname}&nbsp;&nbsp; */}
-                {moderation
-                  ? censorProfanity(processedMessage.nickname)
-                  : processedMessage.nickname}
+                {processedMessage.nickname
+                  ? moderation
+                    ? censorProfanity(processedMessage.nickname)
+                    : processedMessage.nickname
+                  : "Unknown Nickname"}
                 &nbsp;&nbsp;
                 <small
                   className="text-s font-light text-muted-foreground"
                   title={processedMessage?.sender}
                 >
-                  {/* {shortenedAccountBase32(processedMessage.sender)} */}
-                  {moderation
-                    ? censorProfanity(
-                        shortenedAccountBase32(processedMessage.sender)
-                      )
-                    : shortenedAccountBase32(processedMessage.sender)}
+                  {processedMessage.sender
+                    ? moderation
+                      ? censorProfanity(
+                          shortenedAccountBase32(processedMessage.sender)
+                        )
+                      : shortenedAccountBase32(processedMessage.sender)
+                    : "Unknown Sender"}
                 </small>
               </CardTitle>
             </CardHeader>
@@ -92,12 +109,21 @@ function Replies() {
 
             <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-3">
               <div className="text-xs text-muted-foreground">
-                <time dateTime="2023-11-23">
-                  {format(
-                    new Date(processedMessage.timestamp * 1000),
-                    " hh:mm:ss - do MMMM yyyy"
-                  )}
-                </time>
+                {processedMessage.timestamp ? (
+                  <time
+                    dateTime={format(
+                      new Date(processedMessage.timestamp * 1000),
+                      "yyyy-mm-dd"
+                    )}
+                  >
+                    {format(
+                      new Date(processedMessage.timestamp * 1000),
+                      " hh:mm:ss - do MMMM yyyy"
+                    )}
+                  </time>
+                ) : (
+                  "Invalid date"
+                )}
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -147,6 +173,15 @@ function Replies() {
           {replies.length > 0 &&
             replies.map((tx: TxnProps) => {
               const post = processMessage(tx) as MessageReturn;
+
+              if (!post || !post.message || !("raw" in post.message)) {
+                console.log(
+                  "Reply post is undefined or missing 'message.raw':",
+                  post
+                );
+                return null;
+              }
+
               const { sender, id, block, nickname, message, timestamp, fee } =
                 post;
 
@@ -159,17 +194,21 @@ function Replies() {
                   <Card className={"bg-muted/25"}>
                     <CardHeader>
                       <CardTitle>
-                        {/* {nickname}&nbsp;&nbsp; */}
-                        {moderation ? censorProfanity(nickname) : nickname}
+                        {nickname
+                          ? moderation
+                            ? censorProfanity(nickname)
+                            : nickname
+                          : "Unknown Nickname"}
                         &nbsp;&nbsp;
                         <small
                           className="text-s font-light text-muted-foreground"
-                          title={sender}
+                          title={sender || "Unknown sender"}
                         >
-                          {/* {shortenedAccountBase32(sender)} */}
-                          {moderation
-                            ? censorProfanity(shortenedAccountBase32(sender))
-                            : shortenedAccountBase32(sender)}
+                          {sender
+                            ? moderation
+                              ? censorProfanity(shortenedAccountBase32(sender))
+                              : shortenedAccountBase32(sender)
+                            : "Unknown Sender"}
                         </small>
                       </CardTitle>
                     </CardHeader>
@@ -184,12 +223,21 @@ function Replies() {
                     </CardContent>
                     <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-3">
                       <div className="text-xs text-muted-foreground">
-                        <time dateTime="2023-11-23">
-                          {format(
-                            new Date(timestamp * 1000),
-                            " hh:mm:ss - do MMMM yyyy"
-                          )}
-                        </time>
+                        {timestamp ? (
+                          <time
+                            dateTime={format(
+                              new Date(timestamp * 1000),
+                              "yyyy-mm-dd"
+                            )}
+                          >
+                            {format(
+                              new Date(timestamp * 1000),
+                              " hh:mm:ss - do MMMM yyyy"
+                            )}
+                          </time>
+                        ) : (
+                          "Invalid date"
+                        )}
                       </div>
 
                       <div className="flex items-center gap-4">
