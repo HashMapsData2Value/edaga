@@ -9,11 +9,13 @@ import {
 import { TxnProps, Txn } from "@/types";
 import { getTxns } from "@/utils";
 import { useApplicationState } from "@/store";
+import { MessageType, processMessage } from "@/utils/processPost";
 
 interface TransactionContextType {
   transactions: TxnProps[];
   replies: TxnProps[];
   loadTransactions: () => void;
+  loadTopicTransactions: () => void;
   loadReplies: (originalTxId: string) => void;
   loadOriginalTransaction: (originalTxId: string) => Promise<void>;
   originalTx: TxnProps | undefined;
@@ -35,6 +37,17 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({
     if (!broadcastChannel.address) return;
     getTxns(broadcastChannel.address).then((transactions) => {
       setTransactions(transactions);
+    });
+  }, [broadcastChannel]);
+
+  const loadTopicTransactions = useCallback(() => {
+    if (!broadcastChannel.address) return;
+    getTxns(broadcastChannel.address).then((transactions) => {
+      const topicTransactions = transactions.filter((txn: TxnProps) => {
+        const post = processMessage(txn);
+        return "type" in post && post.type === MessageType.Topic;
+      });
+      setTransactions(topicTransactions);
     });
   }, [broadcastChannel]);
 
@@ -77,6 +90,7 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({
       value={{
         transactions,
         loadTransactions,
+        loadTopicTransactions,
         replies,
         loadReplies,
         loadOriginalTransaction,

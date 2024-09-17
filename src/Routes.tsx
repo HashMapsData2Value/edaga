@@ -32,6 +32,16 @@ export const router = createBrowserRouter(
           <Topics />
         </TransactionProvider>
       ),
+      children: [
+        {
+          path: "replies/:originalTxId",
+          element: (
+            <TransactionProvider>
+              <Replies />
+            </TransactionProvider>
+          ),
+        },
+      ],
       // TODO - Topics sub-view
       // children: [
       //   {

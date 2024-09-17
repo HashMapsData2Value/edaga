@@ -16,10 +16,12 @@ import { UpdateIcon } from "@radix-ui/react-icons";
 import { useApplicationState } from "@/store";
 import { useTransactionContext } from "@/context/TransactionContext";
 import { quotes } from "@/assets/data/quotes";
+import { Input } from "../ui/input";
 
 interface ComposeProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  isTopic?: boolean;
   isReply?: boolean;
   replyToTxId?: string;
   // currentPath: string;
@@ -28,6 +30,7 @@ interface ComposeProps {
 const Compose = ({
   open,
   onOpenChange,
+  isTopic,
   isReply,
   replyToTxId,
 }: ComposeProps) => {
@@ -44,6 +47,8 @@ const Compose = ({
 
   const [message, setMessage] = useState("");
   const maxMessageLength = 800;
+  const [topicName, setTopicName] = useState("");
+  const maxTopicLength = 50;
   const [isSending, setIsSending] = useState(false);
 
   const activeHandle = activeAddress ? handles[activeAddress] || "" : "";
@@ -75,6 +80,14 @@ const Compose = ({
 
   const sendMessage = async () => {
     if (!activeAddress) throw new Error("No active account");
+    if (
+      isTopic &&
+      !isReply &&
+      (topicName.length === 0 || topicName.length > maxTopicLength)
+    ) {
+      alert(`Please provide a topic name within ${maxTopicLength} characters.`);
+      return;
+    }
     if (message.length === 0) {
       alert("Type a message before posting");
       return;
@@ -89,13 +102,18 @@ const Compose = ({
     setIsSending(true);
 
     try {
-      // Prepare message
-      const prefix = isReply ? `r;${replyToTxId}` : "a;";
+      let prefix = "";
+      if (isReply) {
+        prefix = `r;${replyToTxId}`;
+      } else if (isTopic && !isReply) {
+        prefix = `t;${topicName}`;
+      } else {
+        prefix = "a;";
+      }
+
       const note = new Uint8Array(
         Buffer.from(`ARC00-0;${prefix};${activeHandle};${message}`)
       );
-
-      // const note = new Uint8Array(Buffer.from(`ARC00-0;a;;LeslieOA;${message}`));
 
       const transactionComposer = new algosdk.AtomicTransactionComposer();
       const suggestedParams = await algodClient.getTransactionParams().do();
@@ -125,6 +143,7 @@ const Compose = ({
       loadTransactions();
 
       setMessage("");
+      setTopicName(""); // Reset topic name
     } catch (err) {
       console.error("Failed to post message", err);
     } finally {
@@ -148,11 +167,36 @@ const Compose = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal={true}>
       <SheetContent side="bottom" className="p-2 pt-4 sm:p-4 md:p-8">
         <SheetHeader className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4 pt-2 pb-6">
-          <SheetTitle>New Conversation</SheetTitle>
+          <SheetTitle>{`New ${
+            isReply ? "Reply" : isTopic ? "Topic" : "Conversation"
+          }`}</SheetTitle>
           <SheetDescription className="max-sm:hidden text-muted-foreground italic">
             {quote}
           </SheetDescription>
         </SheetHeader>
+
+        {isTopic && !isReply && (
+          <div className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4 pb-4">
+            <Input
+              id="topicName"
+              type="text"
+              placeholder="Enter topic name"
+              className="p-2 border rounded-md"
+              value={topicName}
+              onChange={(evt) => {
+                const inputTopic = evt.target.value;
+                if (inputTopic.length <= maxTopicLength) {
+                  setTopicName(inputTopic);
+                } else {
+                  setTopicName(inputTopic.slice(0, maxTopicLength));
+                }
+              }}
+            />
+            {/* <span className="text-xs text-muted-foreground">
+              {maxTopicLength - topicName.length}/{maxTopicLength}
+            </span> */}
+          </div>
+        )}
 
         <div className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4">
           <form

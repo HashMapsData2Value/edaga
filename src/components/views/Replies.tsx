@@ -26,7 +26,6 @@ import { useApplicationState } from "@/store";
 import { censorProfanity } from "@/utils/moderation";
 import { useTransactionContext } from "@/context/TransactionContext";
 
-// TODO - Redirect to homepage if reply is not on current broadcast channel
 function Replies() {
   const navigate = useNavigate();
   const { broadcastChannel, moderation } = useApplicationState();

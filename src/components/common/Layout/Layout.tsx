@@ -51,6 +51,8 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isTopic = location.pathname.includes("topic");
+
   const isReply = location.pathname.includes("replies");
   const { isReplying } = location.state || { isReplying: false };
   const getReplyTxId = () => {
@@ -138,6 +140,7 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
         open={isSheetOpen}
         onOpenChange={setIsSheetOpen}
         {...(isReply ? { isReply: true, replyToTxId: getReplyTxId()! } : {})}
+        {...(isTopic ? { isTopic: true } : {})}
       />
 
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
