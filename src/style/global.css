@@ -96,6 +96,10 @@
     z-index: 9999;
   }
 
+  .post-container {
+    whitespace: pre-wrap;
+  }
+
   #message {
     white-space: pre-wrap;
   }

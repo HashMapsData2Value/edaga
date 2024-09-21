@@ -82,7 +82,10 @@ const Post = ({
       : null;
 
   return (
-    <Card key={id} {...(isReplyInline ? { className: "bg-muted/25" } : {})}>
+    <Card
+      key={id}
+      className={`post-container ${isReplyInline ? "bg-muted/25" : ""}`}
+    >
       <CardHeader>
         <CardTitle className="flex items-center">
           <div>
@@ -107,7 +110,10 @@ const Post = ({
       <CardContent className="p-6 pb-10">
         <div className="grid gap-6">
           <div className="grid gap-3">
-            <h4 className="scroll-m-20 text-xl font-regular tracking-tight">
+            <h4
+              className="scroll-m-20 text-xl font-regular tracking-tight"
+              style={{ whiteSpace: "pre-wrap" }}
+            >
               {formatMessage}
             </h4>
             {isReply && (
