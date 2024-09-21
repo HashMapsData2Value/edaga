@@ -10,6 +10,7 @@ import { TxnProps, Txn } from "@/types";
 import { getTxns } from "@/utils";
 import { useApplicationState } from "@/store";
 import { MessageType, processMessage } from "@/utils/processPost";
+import { getDefaultNetwork } from "@/config/network.config";
 
 interface TransactionContextType {
   transactions: TxnProps[];
@@ -32,6 +33,8 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({
   const [transactions, setTransactions] = useState<TxnProps[]>([]);
   const [replies, setReplies] = useState<TxnProps[]>([]);
   const [originalTx, setOriginalTx] = useState<TxnProps>();
+
+  const defaultNetwork = getDefaultNetwork();
 
   const loadTransactions = useCallback(() => {
     if (!broadcastChannel.address) return;
@@ -59,8 +62,9 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({
       for (let i = 0; i < replyTypes.length; i++) {
         const prefix = btoa(replyTypes[i] + originalTxId);
         const response = await fetch(
-          `https://testnet-idx.algonode.cloud/v2/accounts/${broadcastChannel.address}/transactions?tx-type=pay&note-prefix=${prefix}`
+          `${defaultNetwork?.endpoints?.[0].indexer}/v2/accounts/${broadcastChannel.address}/transactions?tx-type=pay&note-prefix=${prefix}`
         );
+
         const data = await response.json();
         if (data.transactions.length >= 1) {
           repliesAll.push(...data.transactions);
@@ -75,7 +79,7 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   const loadOriginalTransaction = useCallback(async (originalTxId: string) => {
-    const originalTxUrl = `https://testnet-idx.algonode.cloud/v2/transactions/${originalTxId}`;
+    const originalTxUrl = `${defaultNetwork?.endpoints?.[0].indexer}/v2/transactions/${originalTxId}`;
     const response = await fetch(originalTxUrl);
     const data: Txn = await response.json();
     setOriginalTx(data.transaction);

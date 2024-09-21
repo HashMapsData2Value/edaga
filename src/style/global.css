@@ -82,18 +82,25 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7); /* Adjust transparency as needed */
-    z-index: 9998; /* Ensure it's below the sheet content */
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9998;
   }
 
-  /* Properly position the sheet content */
   .sheet-content {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    max-height: 80vh; /* Prevent the sheet from covering too much of the viewport */
-    overflow-y: auto; /* Allow scrolling within the sheet */
-    z-index: 9999; /* Ensure it's above the overlay */
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 9999;
+  }
+
+  .post-container {
+    white-space: pre-wrap;
+  }
+
+  #message {
+    white-space: pre-wrap;
   }
 }
