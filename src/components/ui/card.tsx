@@ -2,6 +2,10 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+interface CardImageProps extends React.HTMLAttributes<HTMLImageElement> {
+  src: string;
+}
+
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -9,7 +13,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-xl border bg-card text-card-foreground shadow",
+      "rounded-xl w-full border bg-card text-card-foreground shadow",
       className
     )}
     {...props}
