@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "@/components/common/Layout";
 import { MessageReturn, processMessage } from "@/utils/processPost";
@@ -6,14 +6,47 @@ import { TxnProps } from "@/types";
 import { useApplicationState } from "@/store";
 import { useTransactionContext } from "@/context/TransactionContext";
 import Post from "@/components/app/Post";
+import { lookUpNFDAddress, fetchNFDAvatar, generateSVGImage } from "@/services/providers"; // Import necessary functions
 
 function Replies() {
   const navigate = useNavigate();
   const { broadcastChannel } = useApplicationState();
   const { originalTxId } = useParams<{ originalTxId: string }>();
 
-  const { originalTx, replies, loadOriginalTransaction, loadReplies } =
+  const { originalTx, replies, loadOriginalTransaction, loadReplies, transactions } =
     useTransactionContext();
+
+  const [avatarSrcs, setAvatarSrcs] = useState<{ [key: string]: string }>({});
+
+  const fetchAvatarSrc = async (sender: string, id: string) => {
+    const nfd = await lookUpNFDAddress(sender);
+    let avatarURL = null;
+
+    if (nfd) {
+      avatarURL = await fetchNFDAvatar(nfd);
+    }
+
+    if (!avatarURL) {
+      const svgImage = await generateSVGImage(sender);
+      setAvatarSrcs((prev) => ({ ...prev, [id]: svgImage }));
+    } else {
+      setAvatarSrcs((prev) => ({ ...prev, [id]: avatarURL }));
+    }
+  };
+  
+  useEffect(() => {
+    if (transactions && transactions.length >= 1) {
+      transactions.forEach((tx: TxnProps) => {
+        const post = processMessage(tx) as MessageReturn;
+        if ("error" in post) {
+          console.warn("Error processing message:", post.error);
+          return;
+        }
+        const { sender, id } = post;
+        fetchAvatarSrc(sender, id);
+      });
+    }
+  }, [transactions]);
 
   useEffect(() => {
     if (originalTxId) {
@@ -21,6 +54,16 @@ function Replies() {
       loadReplies(originalTxId);
     }
   }, [originalTxId, loadOriginalTransaction, loadReplies, replies.length]);
+
+  useEffect(() => {
+    if (originalTx) {
+      const post = processMessage(originalTx) as MessageReturn;
+      if (!("error" in post)) {
+        const { sender, id } = post;
+        fetchAvatarSrc(sender, id);
+      }
+    }
+  }, [originalTx]);
 
   const initialBroadcastChannel = useRef(broadcastChannel);
   useEffect(() => {
@@ -45,6 +88,7 @@ function Replies() {
             parentTxn={parentTxn}
             validPostTypes={true}
             replies={replies}
+            avatarSrc={avatarSrcs[originalTx.id] || ""}
           />
 
           {replies &&
@@ -60,14 +104,6 @@ function Replies() {
                 return null;
               }
 
-              // TODO - Render link to nested replies
-              // const nestedReplies = replies.filter((txn) => {
-              //   const replyPost = processMessage(txn);
-              //   return (
-              //     !("error" in replyPost) && replyPost.parentId === post.id
-              //   );
-              // });
-
               return (
                 <Post
                   key={tx.id}
@@ -76,7 +112,7 @@ function Replies() {
                   validPostTypes={true}
                   isReplyInline={true}
                   isReply={true}
-                  // replies={nestedReplies}
+                  avatarSrc={avatarSrcs[post.id] || ""}
                 />
               );
             })}

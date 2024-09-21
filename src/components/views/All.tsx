@@ -6,7 +6,10 @@ import {
 } from "@/utils/processPost";
 import { TxnProps } from "@/types";
 import { useTransactionContext } from "@/context/TransactionContext";
+// import DebugMessage from "@/components/debug/DebugMessage";
+import { lookUpNFDAddress, fetchNFDAvatar, generateSVGImage } from "@/services/providers";
 import Post from "../app/Post";
+import { useEffect, useState } from "react";
 
 const BREADCRUMBS = [
   { label: "Edaga", link: "#" },
@@ -15,6 +18,38 @@ const BREADCRUMBS = [
 
 const All = () => {
   const { transactions } = useTransactionContext();
+
+  const [avatarSrcs, setAvatarSrcs] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    const fetchAvatarSrc = async (sender: string, id: string) => {
+      const nfd = await lookUpNFDAddress(sender);
+      let avatarURL = null;
+
+      if (nfd) {
+        avatarURL = await fetchNFDAvatar(nfd);
+      }
+
+      if (!avatarURL) {
+        const svgImage = await generateSVGImage(sender);
+        setAvatarSrcs((prev) => ({ ...prev, [id]: svgImage }));
+      } else {
+        setAvatarSrcs((prev) => ({ ...prev, [id]: avatarURL }));
+      }
+    };
+
+    if (transactions && transactions.length >= 1) {
+      transactions.forEach((tx: TxnProps) => {
+        const post = processMessage(tx) as MessageReturn;
+        if ("error" in post) {
+          console.warn("Error processing message:", post.error);
+          return;
+        }
+        const { sender, id } = post;
+        fetchAvatarSrc(sender, id);
+      });
+    }
+  }, [transactions]);
 
   return (
     <Layout breadcrumbOptions={BREADCRUMBS}>
@@ -46,6 +81,7 @@ const All = () => {
                 validPostTypes={validPostTypes}
                 isReply={isReply}
                 replies={replies}
+                avatarSrc={avatarSrcs[post.id] || ""}
               />
             );
           })
