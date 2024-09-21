@@ -35,7 +35,6 @@ function Replies() {
   };
   
   useEffect(() => {
-
     if (transactions && transactions.length >= 1) {
       transactions.forEach((tx: TxnProps) => {
         const post = processMessage(tx) as MessageReturn;

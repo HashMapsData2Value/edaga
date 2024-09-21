@@ -89,17 +89,16 @@ const Post = ({
       : null;
 
   return (
-    <div className="flex items-start justify-between">
-      <Avatar>
-        <AvatarImage src={avatarSrc} />
-        <AvatarFallback>Edaga</AvatarFallback>
-      </Avatar>
       <Card
         key={id}
         className={`post-container ${isReplyInline ? "bg-muted/25" : ""}`}
       >
         <CardHeader>
           <CardTitle className="flex items-center">
+          <Avatar className="w-8 h-8 sm:w-12 sm:h-12">
+            <AvatarImage src={avatarSrc} />
+            <AvatarFallback>Edaga</AvatarFallback>
+          </Avatar>
             <div>
               {moderation ? censorProfanity(nickname) : nickname}
               &nbsp;&nbsp;
@@ -251,7 +250,6 @@ const Post = ({
           </div>
         </CardFooter>
       </Card>
-    </div>
   );
 };
 export default Post;
