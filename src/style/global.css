@@ -97,7 +97,7 @@
   }
 
   .post-container {
-    whitespace: pre-wrap;
+    white-space: pre-wrap;
   }
 
   #message {
