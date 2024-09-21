@@ -43,7 +43,7 @@ const Compose = ({
   } = useWallet();
 
   const { broadcastChannel, handles } = useApplicationState();
-  const { loadTransactions } = useTransactionContext();
+  const { loadTransactions, loadReplies } = useTransactionContext();
 
   const [message, setMessage] = useState("");
   const maxMessageLength = 800;
@@ -140,7 +140,11 @@ const Compose = ({
         txIDs: result.txIDs,
       });
 
-      loadTransactions();
+      if (isReply && replyToTxId) {
+        await loadReplies(replyToTxId);
+      } else {
+        await loadTransactions();
+      }
 
       setMessage("");
       setTopicName(""); // Reset topic name
