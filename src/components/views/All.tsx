@@ -6,9 +6,12 @@ import {
 } from "@/utils/processPost";
 import { TxnProps } from "@/types";
 import { useTransactionContext } from "@/context/TransactionContext";
-// import DebugMessage from "@/components/debug/DebugMessage";
-import { lookUpNFDAddress, fetchNFDAvatar, generateSVGImage } from "@/services/providers";
-import Post from "../app/Post";
+import {
+  lookUpNFDAddress,
+  fetchNFDAvatar,
+  generateSVGImage,
+} from "@/services/providers";
+import Post from "@/components/app/Post";
 import { useEffect, useState } from "react";
 
 const BREADCRUMBS = [

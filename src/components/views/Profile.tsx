@@ -1,38 +1,39 @@
 import Layout from "@/components/common/Layout";
 import {
   MessageReturn,
-  MessageType,
+  // MessageType,
   processMessage,
 } from "@/utils/processPost";
 import { TxnProps } from "@/types";
 import { useTransactionContext } from "@/context/TransactionContext";
-import { useEffect, useState } from "react";
-import Post from "@/components/app/Post";
+// import DebugMessage from "@/components/debug/DebugMessage";
 import {
   lookUpNFDAddress,
   fetchNFDAvatar,
   generateSVGImage,
 } from "@/services/providers";
+// import Post from "@/components/app/Post";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const BREADCRUMBS = [
-  { label: "Edaga", link: "/" },
-  { label: "Topics", link: `/topics/` },
+  { label: "Edaga", link: "#" },
+  { label: "Profile", link: "#" },
 ];
 
-const Topics = () => {
-  const { transactions, loadTopicTransactions } = useTransactionContext();
-  const [avatarSrcs, setAvatarSrcs] = useState<{ [key: string]: string }>({});
+const Profile = () => {
+  const { transactions } = useTransactionContext();
+  const { accountAddress } = useParams<{ accountAddress: string }>();
 
-  useEffect(() => loadTopicTransactions(), [loadTopicTransactions]);
+  // const [avatarSrcs, setAvatarSrcs] = useState<{ [key: string]: string }>({});
+  const [, setAvatarSrcs] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     const fetchAvatarSrc = async (sender: string, id: string) => {
       const nfd = await lookUpNFDAddress(sender);
       let avatarURL = null;
 
-      if (nfd) {
-        avatarURL = await fetchNFDAvatar(nfd);
-      }
+      if (nfd) avatarURL = await fetchNFDAvatar(nfd);
 
       if (!avatarURL) {
         const svgImage = await generateSVGImage(sender);
@@ -57,22 +58,22 @@ const Topics = () => {
 
   return (
     <Layout breadcrumbOptions={BREADCRUMBS}>
-      <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-        {transactions && transactions.length > 0 ? (
+      <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8 pb-12">
+        <h1>{accountAddress}</h1>
+
+        {/* {transactions && transactions.length >= 1 ? (
           transactions.map((tx: TxnProps) => {
             const post = processMessage(tx) as MessageReturn;
             const parentTxn = transactions.find(
               (txn) => txn.id === post.parentId
             );
+            const validPostTypes = new Set([
+              MessageType.All,
+              MessageType.Reply,
+            ]).has(post.type);
+            const isReply = "parentId" in post;
 
-            if (!post.message || !("raw" in post.message)) {
-              console.warn("Invalid message format", post);
-              return null;
-            }
-
-            const validPostTypes = new Set([MessageType.Topic]).has(post.type);
-
-            const isReply = "parentId" in post ? true : false;
+            if (!validPostTypes) return;
 
             const replies = transactions.filter((txn) => {
               const replyPost = processMessage(txn);
@@ -92,15 +93,13 @@ const Topics = () => {
             );
           })
         ) : (
-          <>
-            <p className="text-muted-foreground pb-12">
-              There are no topics... yet.
-            </p>
-          </>
-        )}
+          <p className="text-muted-foreground pb-12">
+            There are no conversations... yet.
+          </p>
+        )} */}
       </div>
     </Layout>
   );
 };
 
-export default Topics;
+export default Profile;

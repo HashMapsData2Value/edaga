@@ -5,6 +5,7 @@ import { TransactionProvider } from "@/context/TransactionContext";
 import All from "@/components/views/All";
 import Replies from "@/components/views/Replies";
 import Topics from "@/components/views/Topics";
+import Profile from "./components/views/Profile";
 // import Topic from "@/components/views/Topic";
 
 export const router = createBrowserRouter(
@@ -14,6 +15,14 @@ export const router = createBrowserRouter(
       element: (
         <TransactionProvider>
           <All />
+        </TransactionProvider>
+      ),
+    },
+    {
+      path: "profile/:accountAddress",
+      element: (
+        <TransactionProvider>
+          <Profile />
         </TransactionProvider>
       ),
     },

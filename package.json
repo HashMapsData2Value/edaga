@@ -4,6 +4,12 @@
   "private": true,
   "type": "module",
   "homepage": "https://hashmapsdata2value.github.io/edaga/",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@agoralabs-sh/avm-web-provider": "^1.7.0",
     "@bitjson/qr-code": "^1.0.2",
@@ -70,12 +76,6 @@
     "tailwindcss": "^3.4.12",
     "typescript": "^5.6.2",
     "vite": "^5.4.7"
-  },
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
   },
   "eslintConfig": {
     "extends": [
