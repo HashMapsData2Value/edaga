@@ -23,10 +23,7 @@ const PostHeader = ({
   return (
     <Link to={`/profile/${accountAddress}`}>
       <CardTitle className="flex items-center space-x-4">
-        <Avatar
-          className="w-8 h-8 sm:w-12 sm:h-12"
-          style={{ outline: "1px solid red" }}
-        >
+        <Avatar className="w-8 h-8 sm:w-12 sm:h-12">
           <AvatarImage src={avatarSrc} />
           <AvatarFallback>
             {moderation ? censorProfanity(nickname) : nickname}

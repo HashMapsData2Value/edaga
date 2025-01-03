@@ -11,6 +11,11 @@ import { getTxns } from "@/utils";
 import { useApplicationState } from "@/store";
 import { MessageType, processMessage } from "@/utils/processPost";
 import { getDefaultNetwork } from "@/config/network.config";
+import {
+  lookUpNFDAddress,
+  fetchNFDAvatar,
+  generateSVGImage,
+} from "@/services/providers";
 
 interface TransactionContextType {
   transactions: TxnProps[];
@@ -20,6 +25,9 @@ interface TransactionContextType {
   loadReplies: (originalTxId: string) => void;
   loadOriginalTransaction: (originalTxId: string) => Promise<void>;
   originalTx: TxnProps | undefined;
+  // TODO: avatar support
+  fetchAvatarSrc: (sender: string, id: string) => Promise<void>;
+  avatarSrcs: { [key: string]: string };
 }
 
 const TransactionContext = createContext<TransactionContextType | undefined>(
@@ -33,8 +41,30 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({
   const [transactions, setTransactions] = useState<TxnProps[]>([]);
   const [replies, setReplies] = useState<TxnProps[]>([]);
   const [originalTx, setOriginalTx] = useState<TxnProps>();
+  const [avatarSrcs, setAvatarSrcs] = useState<{ [key: string]: string }>({});
 
   const defaultNetwork = getDefaultNetwork();
+
+  const fetchAvatarSrc = useCallback(
+    async (sender: string, id: string) => {
+      if (avatarSrcs[id]) return; // Avoid redundant fetches
+
+      const nfd = await lookUpNFDAddress(sender);
+      let avatarURL = null;
+
+      if (nfd) {
+        avatarURL = await fetchNFDAvatar(nfd);
+      }
+
+      if (!avatarURL) {
+        const svgImage = await generateSVGImage(sender);
+        setAvatarSrcs((prev) => ({ ...prev, [id]: svgImage }));
+      } else {
+        setAvatarSrcs((prev) => ({ ...prev, [id]: avatarURL }));
+      }
+    },
+    [avatarSrcs]
+  );
 
   const loadTransactions = useCallback(() => {
     if (!broadcastChannel.address) return;
@@ -75,7 +105,7 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({
         repliesAll.sort((a, b) => a["confirmed-round"] - b["confirmed-round"])
       );
     },
-    [broadcastChannel.address]
+    [broadcastChannel.address, defaultNetwork?.endpoints]
   );
 
   const loadOriginalTransaction = useCallback(async (originalTxId: string) => {
@@ -83,7 +113,7 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({
     const response = await fetch(originalTxUrl);
     const data: Txn = await response.json();
     setOriginalTx(data.transaction);
-  }, []);
+  }, [defaultNetwork?.endpoints]);
 
   useEffect(() => {
     loadTransactions();
@@ -99,6 +129,8 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({
         loadReplies,
         loadOriginalTransaction,
         originalTx,
+        avatarSrcs,
+        fetchAvatarSrc,
       }}
     >
       {children}

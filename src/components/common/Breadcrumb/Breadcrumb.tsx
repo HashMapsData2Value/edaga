@@ -6,6 +6,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Fragment } from "react/jsx-runtime";
+import { Link } from "react-router-dom";
 
 type BreadcrumbOption = { label: string; link: string };
 type BreadcrumbSeparator = { separator: true };
@@ -29,7 +30,7 @@ const Breadcrumb = ({ options }: BreadcrumbProps) => {
               ) : (
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <a href={option.link}>{option.label}</a>
+                    <Link to={option.link}>{option.label}</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
               )}

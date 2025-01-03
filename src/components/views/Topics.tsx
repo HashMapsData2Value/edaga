@@ -6,13 +6,8 @@ import {
 } from "@/utils/processPost";
 import { TxnProps } from "@/types";
 import { useTransactionContext } from "@/context/TransactionContext";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Post from "@/components/app/Post";
-import {
-  lookUpNFDAddress,
-  fetchNFDAvatar,
-  generateSVGImage,
-} from "@/services/providers";
 
 const BREADCRUMBS = [
   { label: "Edaga", link: "/" },
@@ -20,28 +15,12 @@ const BREADCRUMBS = [
 ];
 
 const Topics = () => {
-  const { transactions, loadTopicTransactions } = useTransactionContext();
-  const [avatarSrcs, setAvatarSrcs] = useState<{ [key: string]: string }>({});
+  const { transactions, loadTopicTransactions, fetchAvatarSrc, avatarSrcs } =
+    useTransactionContext();
 
   useEffect(() => loadTopicTransactions(), [loadTopicTransactions]);
 
   useEffect(() => {
-    const fetchAvatarSrc = async (sender: string, id: string) => {
-      const nfd = await lookUpNFDAddress(sender);
-      let avatarURL = null;
-
-      if (nfd) {
-        avatarURL = await fetchNFDAvatar(nfd);
-      }
-
-      if (!avatarURL) {
-        const svgImage = await generateSVGImage(sender);
-        setAvatarSrcs((prev) => ({ ...prev, [id]: svgImage }));
-      } else {
-        setAvatarSrcs((prev) => ({ ...prev, [id]: avatarURL }));
-      }
-    };
-
     if (transactions && transactions.length >= 1) {
       transactions.forEach((tx: TxnProps) => {
         const post = processMessage(tx) as MessageReturn;
@@ -53,7 +32,7 @@ const Topics = () => {
         fetchAvatarSrc(sender, id);
       });
     }
-  }, [transactions]);
+  }, [transactions, fetchAvatarSrc]);
 
   return (
     <Layout breadcrumbOptions={BREADCRUMBS}>

@@ -96,13 +96,12 @@ const MainHeader = ({
         />
       </div> */}
 
-      <div
-        className="relative flex-1 gap-2"
-        // style={{ outline: "1px solid red" }}
-      />
+      <div className="relative flex-1 gap-2" />
 
       <Button variant="outline" onClick={() => setOpenWalletModal(true)}>
-        {activeWallet ? shortenedAccountBase32(activeAccount!.address, 6) : "Connect"}
+        {activeWallet
+          ? shortenedAccountBase32(activeAccount!.address, 6)
+          : "Connect"}
       </Button>
 
       <DropdownMenu>
