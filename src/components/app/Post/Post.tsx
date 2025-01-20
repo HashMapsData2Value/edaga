@@ -7,7 +7,6 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   MessageReturn,
@@ -15,7 +14,7 @@ import {
   processMessage,
 } from "@/utils/processPost";
 import { TxnProps } from "@/types";
-import { shortenedAccountBase32 } from "@/utils";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +22,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+
 import {
   MessageCircle as IconMessageCircle,
   MoreHorizontal as IconMoreHorizontal,
@@ -32,7 +31,7 @@ import {
 import { Link } from "react-router-dom";
 import { useApplicationState } from "@/store";
 import { censorProfanity } from "@/utils/moderation";
-// import DebugMessage from "@/components/debug/DebugMessage";
+import PostHeader from "../PostHeader";
 
 export interface PostProps {
   tx: TxnProps;
@@ -41,6 +40,7 @@ export interface PostProps {
   isReply?: boolean;
   isReplyInline?: boolean;
   replies?: TxnProps[];
+  avatarSrc: string;
 }
 
 const Post = ({
@@ -50,6 +50,7 @@ const Post = ({
   isReply,
   isReplyInline,
   replies,
+  avatarSrc,
 }: PostProps) => {
   const { moderation } = useApplicationState();
 
@@ -87,25 +88,12 @@ const Post = ({
       className={`post-container ${isReplyInline ? "bg-muted/25" : ""}`}
     >
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <div>
-            {moderation ? censorProfanity(nickname) : nickname}
-            &nbsp;&nbsp;
-            <small
-              className="text-s font-light text-muted-foreground"
-              title={sender}
-            >
-              {moderation
-                ? censorProfanity(shortenedAccountBase32(sender))
-                : shortenedAccountBase32(sender)}
-            </small>
-          </div>
-          {formatTopicName && (
-            <Badge className="ml-auto bg-gray-500 cursor-default">
-              {formatTopicName}
-            </Badge>
-          )}
-        </CardTitle>
+        <PostHeader
+          nickname={nickname}
+          accountAddress={sender}
+          avatarSrc={avatarSrc}
+          {...{ topicName: formatTopicName }}
+        />
       </CardHeader>
       <CardContent className="p-6 pb-10">
         <div className="grid gap-6">

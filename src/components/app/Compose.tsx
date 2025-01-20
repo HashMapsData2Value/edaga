@@ -16,7 +16,7 @@ import { UpdateIcon } from "@radix-ui/react-icons";
 import { useApplicationState } from "@/store";
 import { useTransactionContext } from "@/context/TransactionContext";
 import { quotes } from "@/assets/data/quotes";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 
 interface ComposeProps {
   open: boolean;

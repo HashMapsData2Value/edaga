@@ -7,7 +7,7 @@ import {
 import { TxnProps } from "@/types";
 import { useTransactionContext } from "@/context/TransactionContext";
 import { useEffect } from "react";
-import Post from "../app/Post";
+import Post from "@/components/app/Post";
 
 const BREADCRUMBS = [
   { label: "Edaga", link: "/" },
@@ -15,9 +15,24 @@ const BREADCRUMBS = [
 ];
 
 const Topics = () => {
-  const { transactions, loadTopicTransactions } = useTransactionContext();
+  const { transactions, loadTopicTransactions, fetchAvatarSrc, avatarSrcs } =
+    useTransactionContext();
 
   useEffect(() => loadTopicTransactions(), [loadTopicTransactions]);
+
+  useEffect(() => {
+    if (transactions && transactions.length >= 1) {
+      transactions.forEach((tx: TxnProps) => {
+        const post = processMessage(tx) as MessageReturn;
+        if ("error" in post) {
+          console.warn("Error processing message:", post.error);
+          return;
+        }
+        const { sender, id } = post;
+        fetchAvatarSrc(sender, id);
+      });
+    }
+  }, [transactions, fetchAvatarSrc]);
 
   return (
     <Layout breadcrumbOptions={BREADCRUMBS}>
@@ -51,6 +66,7 @@ const Topics = () => {
                 validPostTypes={validPostTypes}
                 isReply={isReply}
                 replies={replies}
+                avatarSrc={avatarSrcs[post.id] || ""}
               />
             );
           })
