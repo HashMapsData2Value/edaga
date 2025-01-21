@@ -49,34 +49,10 @@ const Compose = ({
   const maxMessageLength = 800;
   const [topicName, setTopicName] = useState("");
   const maxTopicLength = 60;
+  const [fee, setFee] = useState(0.001);
   const [isSending, setIsSending] = useState(false);
 
   const activeHandle = activeAddress ? handles[activeAddress] || "" : "";
-
-  /**
-   * As the longest fixed part of a message is a reply:
-   * `ARC00-0;r;0000000000000000000000000000000000000000000000000000;;` (64 characters)
-   *
-   * ..and the longest NFD (including segment) is:
-   * `{27}.{27}.algo` (60 characters*)
-   *
-   * So, that's:
-   * ARC00-0;r;0000000000000000000000000000000000000000000000000000;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; (124 characters)
-   *
-   * ...leaving 900 for a message.
-   *
-   * I figure we'd want media attachment's at some point
-   * (common IPFS CID lengths are between 46 [v0] to 55 [v1, base58+sha256]),
-   * and to give the message format space for extensions,
-   * let's settle on 800 characters for a message.
-   *
-   * So that's:
-   *
-   * 60 characters max for a handle
-   * 800 characters max for a message
-   *
-   * *See [Fisherman's Discord post](https://discord.com/channels/925410112368156732/925410112951160879/1190400846547144754))
-   */
 
   const sendMessage = async () => {
     if (!activeAddress) throw new Error("No active account");
@@ -117,6 +93,9 @@ const Compose = ({
 
       const transactionComposer = new algosdk.AtomicTransactionComposer();
       const suggestedParams = await algodClient.getTransactionParams().do();
+      
+      suggestedParams.flatFee = true;
+      suggestedParams.fee = fee*1_000_000;
 
       const transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: activeAddress,
@@ -196,9 +175,6 @@ const Compose = ({
                 }
               }}
             />
-            {/* <span className="text-xs text-muted-foreground">
-              {maxTopicLength - topicName.length}/{maxTopicLength}
-            </span> */}
           </div>
         )}
 
@@ -259,6 +235,28 @@ const Compose = ({
               </Button>
             </div>
           </form>
+        </div>
+        <div className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4 pb-4">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="fee">
+              Fee (higher fee equals a more visible the transaction)
+            </Label>
+            <Input
+              id="fee"
+              type="number"
+              min="0.001"
+              step="0.001"
+              placeholder="Enter fee in microAlgo"
+              className="p-2 border rounded-md no-arrows w-48"
+              value={fee}
+              onChange={(evt) => {
+                const value = parseFloat(evt.target.value);
+                if (!isNaN(value) && value >= 0.001) {
+                  setFee(value);
+                }
+              }}
+            />
+          </div>
         </div>
       </SheetContent>
     </Sheet>

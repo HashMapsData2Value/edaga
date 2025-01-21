@@ -182,6 +182,15 @@ const Post = ({
             </Button>
           </div>
 
+          <div className="text-xs text-muted-foreground">
+            <span
+              className="flex items-center gap-1 text-xs text-muted-foreground"
+              title={`${microalgosToAlgos(fee)} was paid to post this message`}
+            >
+              {`${microalgosToAlgos(fee)} Fee`}
+            </span>
+          </div>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -214,14 +223,6 @@ const Post = ({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-s text-muted-foreground"
-                title={`${microalgosToAlgos(
-                  fee
-                )} was paid to post this message`}
-              >
-                {`${microalgosToAlgos(fee)}`}
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
