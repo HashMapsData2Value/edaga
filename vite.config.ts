@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react-swc";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: "/",
   plugins: [
     react({
       jsxImportSource: "react",
@@ -30,6 +31,9 @@ export default defineConfig({
         manualChunks: (id) => {
           if (id.includes("node_modules")) {
             return "vendor";
+            // TODO - Consider splitting out vendor chunks
+            // const packageName = id.split("node_modules/")[1].split("/")[0];
+            // return `vendor_${packageName}`;
           }
         },
       },

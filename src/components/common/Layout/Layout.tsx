@@ -98,6 +98,7 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
     const pathToLabelMap: LocationLabel = {
       "/replies": { singular: "Reply", plural: "Replies" },
       "/topics": { singular: "Topic", plural: "Topics" },
+      "/profile": { singular: "Profile", plural: "Profile" },
     };
     const defaultLabel: Label = {
       singular: "Conversation",
