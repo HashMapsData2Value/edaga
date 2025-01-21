@@ -222,7 +222,6 @@ const Post = ({
                   View Block
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
