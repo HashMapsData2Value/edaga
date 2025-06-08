@@ -9,15 +9,17 @@ interface ApplicationState {
   setBroadcastChannel: (channel: BroadcastChannel) => void;
   handles: Record<string, string>;
   setHandle: (address: string, handle: string) => void;
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
+  customFees: number[];
+  addCustomFee: (fee: number) => void;
   moderation: boolean;
   setModeration: (moderation: boolean) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
 }
 
 export const useApplicationState = create<ApplicationState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       broadcastChannel: BroadcastChannels[0],
       setBroadcastChannel: (channel: BroadcastChannel) =>
         set({ broadcastChannel: channel }),
@@ -26,10 +28,17 @@ export const useApplicationState = create<ApplicationState>()(
         set((state) => ({
           handles: { ...state.handles, [address]: handle },
         })),
-      theme: "system",
-      setTheme: (theme: Theme) => set({ theme }),
+      customFees: [],
+      addCustomFee: (fee) => {
+        const current = get().customFees;
+        if (fee <= 5 && !current.includes(fee)) {
+          set({ customFees: [...current, fee].sort((a, b) => a - b) });
+        }
+      },
       moderation: true,
       setModeration: (moderation: boolean) => set({ moderation }),
+      theme: "system",
+      setTheme: (theme: Theme) => set({ theme }),
     }),
     {
       name: "edaga-application-storage",
