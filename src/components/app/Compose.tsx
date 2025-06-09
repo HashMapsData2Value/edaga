@@ -1,6 +1,7 @@
 import { useWallet } from "@txnlab/use-wallet-react";
 import algosdk from "algosdk";
 import { useState, useEffect, useMemo } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,6 +19,16 @@ import { useTransactionContext } from "@/context/TransactionContext";
 import { quotes } from "@/assets/data/quotes";
 import { Input } from "@/components/ui/input";
 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+} from "@/components/ui/select";
+import Algorand from "@/assets/icons/currency.algorand.svg";
+
 interface ComposeProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -27,6 +38,19 @@ interface ComposeProps {
   // currentPath: string;
 }
 
+interface TransactionFeeOption {
+  label: string;
+  value: number;
+}
+const TXN_FEE: TransactionFeeOption[] = [
+  { label: "Default", value: 0.001 },
+  { label: "Medium", value: 0.01 },
+  { label: "High", value: 0.1 },
+  { label: "Priority", value: 1.0 },
+];
+
+const FEE_CAP = 5; // Maximum fee in ALGO for custom fees
+
 const Compose = ({
   open,
   onOpenChange,
@@ -34,13 +58,7 @@ const Compose = ({
   isReply,
   replyToTxId,
 }: ComposeProps) => {
-  const {
-    algodClient,
-    activeAddress,
-    // activeNetwork,
-    // setActiveNetwork,
-    transactionSigner,
-  } = useWallet();
+  const { algodClient, activeAddress, transactionSigner } = useWallet();
 
   const { broadcastChannel, handles } = useApplicationState();
   const { loadTransactions, loadReplies } = useTransactionContext();
@@ -49,34 +67,10 @@ const Compose = ({
   const maxMessageLength = 800;
   const [topicName, setTopicName] = useState("");
   const maxTopicLength = 60;
+  const [fee, setFee] = useState(0.001);
   const [isSending, setIsSending] = useState(false);
 
   const activeHandle = activeAddress ? handles[activeAddress] || "" : "";
-
-  /**
-   * As the longest fixed part of a message is a reply:
-   * `ARC00-0;r;0000000000000000000000000000000000000000000000000000;;` (64 characters)
-   *
-   * ..and the longest NFD (including segment) is:
-   * `{27}.{27}.algo` (60 characters*)
-   *
-   * So, that's:
-   * ARC00-0;r;0000000000000000000000000000000000000000000000000000;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; (124 characters)
-   *
-   * ...leaving 900 for a message.
-   *
-   * I figure we'd want media attachment's at some point
-   * (common IPFS CID lengths are between 46 [v0] to 55 [v1, base58+sha256]),
-   * and to give the message format space for extensions,
-   * let's settle on 800 characters for a message.
-   *
-   * So that's:
-   *
-   * 60 characters max for a handle
-   * 800 characters max for a message
-   *
-   * *See [Fisherman's Discord post](https://discord.com/channels/925410112368156732/925410112951160879/1190400846547144754))
-   */
 
   const sendMessage = async () => {
     if (!activeAddress) throw new Error("No active account");
@@ -118,6 +112,9 @@ const Compose = ({
       const transactionComposer = new algosdk.AtomicTransactionComposer();
       const suggestedParams = await algodClient.getTransactionParams().do();
 
+      suggestedParams.flatFee = true;
+      suggestedParams.fee = fee * 1_000_000;
+
       const transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: activeAddress,
         to: broadcastChannel.address,
@@ -147,7 +144,7 @@ const Compose = ({
       }
 
       setMessage("");
-      setTopicName(""); // Reset topic name
+      setTopicName("");
     } catch (err) {
       console.error("Failed to post message", err);
     } finally {
@@ -166,6 +163,35 @@ const Compose = ({
   }, [open]);
 
   const quote = useMemo(() => getDescriptionQuote(), []);
+
+  const [fees, setFees] = useState(TXN_FEE);
+  const [customFee, setCustomFee] = useState("");
+
+  const selectedOption = fees.find((f) => f.value === fee) ?? {
+    value: fee,
+    label: "Custom",
+  };
+
+  const { addCustomFee } = useApplicationState();
+
+  const handleCustomFee = () => {
+    const parsed = parseFloat(customFee);
+
+    if (
+      !isNaN(parsed) &&
+      parsed >= 0.001 &&
+      parsed <= FEE_CAP &&
+      !fees.some((f) => f.value === parsed)
+    ) {
+      const newFees = [...fees, { value: parsed, label: "Custom" }];
+
+      setFees(newFees);
+      setFee(parsed);
+      setCustomFee("");
+
+      addCustomFee(parsed);
+    }
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={true}>
@@ -196,9 +222,6 @@ const Compose = ({
                 }
               }}
             />
-            {/* <span className="text-xs text-muted-foreground">
-              {maxTopicLength - topicName.length}/{maxTopicLength}
-            </span> */}
           </div>
         )}
 
@@ -213,7 +236,7 @@ const Compose = ({
             <Textarea
               id="message"
               placeholder="Type your message here..."
-              className="min-h-12 resize-none border-0 p-3 shadow-none focus-visible:ring-0 text-base"
+              className="min-h-12 resize-none border-0 p-3 pr-20 pb-12 shadow-none focus-visible:ring-0 text-base"
               value={message}
               onChange={(evt) => {
                 const inputMessage = evt.target.value;
@@ -235,28 +258,115 @@ const Compose = ({
               >
                 {maxMessageLength - message.length}/{maxMessageLength}
               </span>
-              <Button
-                type="submit"
-                size="default"
-                className="ml-auto gap-1.5"
-                onClick={(event) => {
-                  event.preventDefault();
-                  sendMessage();
-                }}
-                disabled={isSending}
-              >
-                {isSending ? (
-                  <>
-                    Posting
-                    <UpdateIcon className="size-3.5 motion-safe:animate-spin-slow" />
-                  </>
-                ) : (
-                  <>
-                    Post
-                    <IconCornerDownLeft className="size-3.5" />
-                  </>
-                )}
-              </Button>
+
+              <div className="ml-auto flex items-center gap-2">
+                <Select
+                  value={fee.toString()}
+                  onValueChange={(value) => {
+                    if (value === "") return;
+                    setFee(Number(value));
+                  }}
+                >
+                  <SelectTrigger className="flex items-center justify-between">
+                    <div className="flex items-center gap-x-1 w-35">
+                      <span className="text-xs text-muted-foreground p-1">
+                        {selectedOption?.label}
+                      </span>
+                      <div className="bg-accent px-2 py-0.5 rounded-full flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                        {selectedOption?.value}
+                        <Algorand width={10} height={10} />
+                      </div>
+                    </div>
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Visibility</SelectLabel>
+
+                      <div className="px-2 pt-1 pb-3 text-xs text-muted-foreground leading-snug border-b border-border">
+                        Select a higher fee to boost visibility
+                      </div>
+
+                      {fees.map((option) => (
+                        <SelectItem
+                          key={option.value}
+                          value={option.value.toString()}
+                        >
+                          <div className="flex items-center gap-x-1">
+                            <span className="text-xs text-muted-foreground p-1">
+                              {option.label}
+                            </span>
+                            <div className="bg-accent px-2 py-0.5 rounded-full flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                              {option.value}
+                              <Algorand width={10} height={10} />
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
+
+                      <div className="flex items-center gap-2 px-2 pt-3 pb-1 border-t border-border">
+                        <Input
+                          id="customFee"
+                          type="number"
+                          step="0.001"
+                          min="0.001"
+                          max={FEE_CAP}
+                          placeholder="Enter fee"
+                          value={customFee}
+                          onChange={(evt) => {
+                            const v = evt.target.value;
+                            if (/^[0-9]*\.?[0-9]*$/.test(v)) {
+                              const num = parseFloat(v);
+                              if (v === "" || (!isNaN(num) && num <= FEE_CAP)) {
+                                setCustomFee(v);
+                              }
+                            }
+                          }}
+                          onKeyDown={(evt) => {
+                            if (evt.key === "Enter") {
+                              evt.preventDefault();
+                              handleCustomFee();
+                            }
+                          }}
+                        />
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="default"
+                          className="h-8 px-3 text-xs"
+                          onClick={handleCustomFee}
+                        >
+                          Add
+                        </Button>
+                      </div>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+                <Button
+                  type="submit"
+                  size="default"
+                  className="ml-auto gap-1.5"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    sendMessage();
+                  }}
+                  disabled={isSending}
+                >
+                  {isSending ? (
+                    <>
+                      Posting
+                      <UpdateIcon className="size-3.5 motion-safe:animate-spin-slow" />
+                    </>
+                  ) : (
+                    <>
+                      Post
+                      <IconCornerDownLeft className="size-3.5" />
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </form>
         </div>

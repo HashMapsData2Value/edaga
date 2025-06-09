@@ -33,6 +33,7 @@
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
+    "@tabler/icons-react": "^3.33.0",
     "@txnlab/use-wallet-react": "^3.5.0",
     "@walletconnect/core": "^2.16.2",
     "@walletconnect/modal": "^2.6.2",

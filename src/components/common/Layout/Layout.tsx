@@ -257,7 +257,6 @@ const Layout = ({ children, breadcrumbOptions }: LayoutProps) => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div></div>
                     <a
                       href="https://github.com/HashMapsData2Value/edaga"
                       rel="noopener"

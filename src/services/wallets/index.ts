@@ -23,7 +23,7 @@ export const walletManager = new WalletManager({
         }),
       },
       metadata: {
-        name: "Casa",
+        name: "Casa ⁽ᵅ⁾",
         icon: CasaFamiglia.Assets.CONNECT_ICON,
       },
     },

@@ -20,6 +20,8 @@ interface NFD {
   };
 }
 
+const IPFS_URL_POSTFIX = "?optimizer=image&width=256";
+
 export async function lookUpNFDAddress(address: string): Promise<NFD | null> {
   // TODO: fetch multiple NFDs, up to 20, in one query
   const url = `https://api.nf.domains/nfd/lookup?address=${address}&view=thumbnail`;
@@ -60,7 +62,9 @@ export async function fetchNFDAvatar(nfd: NFD) {
 // "image" property we extract out in a secondary step.
 // An NFD avatar could also staright up just be the image itself
 async function checkARC3(avatarIPFS: string): Promise<string | null> {
-  const URL = `https://ipfs.algonode.xyz/ipfs/${avatarIPFS.split("://")[1]}`;
+  const URL = `https://ipfs.algonode.xyz/ipfs/${
+    avatarIPFS.split("://")[1]
+  }${IPFS_URL_POSTFIX}`;
   const response = await fetch(URL);
 
   if (response.status === 200) {
@@ -71,7 +75,9 @@ async function checkARC3(avatarIPFS: string): Promise<string | null> {
       const data = await response.json();
       // ARC3 JSON object with data.image set
       if (data.image && data.image.includes("ipfs")) {
-        return `https://ipfs.algonode.xyz/ipfs/${data.image.split("://")[1]}`;
+        return `https://ipfs.algonode.xyz/ipfs/${
+          data.image.split("://")[1]
+        }${IPFS_URL_POSTFIX}`;
       }
     }
     // IF the content type is an image, then it's the avatar itself

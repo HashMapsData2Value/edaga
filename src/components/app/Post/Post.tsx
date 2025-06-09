@@ -1,5 +1,4 @@
-import { format } from "date-fns";
-import { microalgosToAlgos } from "@/utils";
+import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,7 +19,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 import {
@@ -32,6 +30,9 @@ import { Link } from "react-router-dom";
 import { useApplicationState } from "@/store";
 import { censorProfanity } from "@/utils/moderation";
 import PostHeader from "../PostHeader";
+import Algorand from "@/assets/icons/currency.algorand.svg";
+import { ReactNode } from "react";
+import algosdk from "algosdk";
 
 export interface PostProps {
   tx: TxnProps;
@@ -42,6 +43,20 @@ export interface PostProps {
   replies?: TxnProps[];
   avatarSrc: string;
 }
+
+export const formatPostFee = (fee: number): ReactNode => {
+  const feeInAlgos = algosdk.microalgosToAlgos(fee).toFixed(3);
+
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full bg-zinc-400 text-white dark:bg-muted-foreground dark:text-background px-2 py-0.5 text-xs font-medium"
+      title={`${feeInAlgos} ALGO was paid to post this message`}
+    >
+      {feeInAlgos}
+      <Algorand width={10} height={10} />
+    </span>
+  );
+};
 
 const Post = ({
   tx,
@@ -68,8 +83,6 @@ const Post = ({
 
   if (!("raw" in message)) return;
 
-  // const formatMessage = moderation ? censorProfanity(message.raw) : message.raw;
-
   const formatMessage =
     moderation && message?.raw
       ? censorProfanity(message.raw)
@@ -95,7 +108,7 @@ const Post = ({
           {...{ topicName: formatTopicName }}
         />
       </CardHeader>
-      <CardContent className="p-6 pb-10">
+      <CardContent className="p-6 max-sm:px-5 pb-10">
         <div className="grid gap-6">
           <div className="grid gap-3">
             <h4
@@ -134,12 +147,16 @@ const Post = ({
         </div>
         {/* <DebugMessage post={post} /> */}
       </CardContent>
-      <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-6 py-1 md:px-6 md:py-3">
+      <CardFooter className="flex flex-row items-center justify-between border-t bg-muted/50 px-5 py-1 md:px-6 md:py-3">
         <div className="text-xs text-muted-foreground">
           <time dateTime="2023-11-23">
-            {format(new Date(timestamp * 1000), " hh:mm:ss - do MMMM yyyy")}
+            {/* {format(new Date(timestamp * 1000), " hh:mm:ss - do MMMM yyyy")} */}
+            {formatDistanceToNow(new Date(timestamp * 1000), {
+              addSuffix: true,
+            })}
           </time>
         </div>
+        {/* <Separator orientation="vertical" cla /> */}
 
         <div className="flex items-center gap-2 max-sm:gap-1">
           {replies && replies.length > 0 && (
@@ -182,6 +199,10 @@ const Post = ({
             </Button>
           </div>
 
+          <div className="text-xs text-muted-foreground">
+            {formatPostFee(fee)}
+          </div>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -212,15 +233,6 @@ const Post = ({
                 >
                   View Block
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-s text-muted-foreground"
-                title={`${microalgosToAlgos(
-                  fee
-                )} was paid to post this message`}
-              >
-                {`${microalgosToAlgos(fee)}`}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
