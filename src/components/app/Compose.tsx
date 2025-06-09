@@ -328,7 +328,6 @@ const Compose = ({
                               handleCustomFee();
                             }
                           }}
-                          className="inline-flex items-center gap-1 rounded-full bg-muted-foreground text-white dark:text-black px-2 py-0.5 text-xs font-medium"
                         />
 
                         <Button
